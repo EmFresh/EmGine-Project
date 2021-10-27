@@ -1,0 +1,39 @@
+#version 420
+
+
+// uniform sampler2D uTex;
+
+uniform sampler2D uFragPos;
+uniform sampler2D uFragDepth;
+uniform sampler2D uScene;
+uniform sampler2D uBlurScene;
+//uniform vec4 uViewPos;
+
+uniform vec3  uCamPos;
+uniform vec3  uCamForw;
+uniform float uNear=.001;
+uniform float uFar=500;
+
+uniform float aperture = 1;//scalar value for light
+uniform float focalLength = 5;//depth of field size
+uniform float planeInFocus =10;//distance to focus plane
+
+in vec2 texcoord;
+out vec4 outColor;
+
+void main()
+{
+   // vec3 camPos = vec3(uCamPos.xy,-uCamPos.z);
+
+    float z = texture(uFragDepth,texcoord).z;
+    float objectDistance = -uFar * uNear / (z * (uFar - uNear) - uFar);
+
+    float CoC = abs(aperture * (focalLength * (objectDistance -planeInFocus)) / (objectDistance * (planeInFocus - focalLength)));
+
+    //for testing
+    vec3 colourA = texture(uScene,texcoord).rgb;
+    vec3 colourB = texture(uBlurScene,texcoord).rgb;
+
+    outColor.rgb =  mix(colourA, colourB, clamp(0,1,CoC));
+    outColor.a = 1.0;
+}

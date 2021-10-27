@@ -1,0 +1,201 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="include/Particles.h" />
+    <ClInclude Include="include/Physics3D.h" />
+    <ClInclude Include="include/Animation.h">
+      <Filter>EmGine\Game Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include/Camera.h">
+      <Filter>EmGine\Game Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include/Character.h">
+      <Filter>EmGine\Text Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="include/Component.h">
+      <Filter>EmGine\Game Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include/EmGineAudioPlayer.h">
+      <Filter>EmGine\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="include/fileIO.h">
+      <Filter>EmGine\File I/O</Filter>
+    </ClInclude>
+    <ClInclude Include="include/FrameBuffer.h">
+      <Filter>EmGine\Game Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include/GameEmGine.h">
+      <Filter>EmGine\Game Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include/ImageLoader.h">
+      <Filter>EmGine\Resource Management</Filter>
+    </ClInclude>
+    <ClInclude Include="include/InputManager.h">
+      <Filter>EmGine\Resource Management</Filter>
+    </ClInclude>
+    <ClInclude Include="include/LightManager.h">
+      <Filter>EmGine\Resource Management</Filter>
+    </ClInclude>
+    <ClInclude Include="include/Matrix.h">
+      <Filter>EmGine\Data Types</Filter>
+    </ClInclude>
+    <ClInclude Include="include/Mesh.h">
+      <Filter>EmGine\Game Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include/MeshLoader.h">
+      <Filter>EmGine\Resource Management</Filter>
+    </ClInclude>
+    <ClInclude Include="include/Model.h">
+      <Filter>EmGine\Game Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include/Quat.h">
+      <Filter>EmGine\Data Types</Filter>
+    </ClInclude>
+    <ClInclude Include="include/ResourceManager.h">
+      <Filter>EmGine\Resource Management</Filter>
+    </ClInclude>
+    <ClInclude Include="include/SceneManager.h">
+      <Filter>EmGine\Resource Management</Filter>
+    </ClInclude>
+    <ClInclude Include="include/Scene.h">
+      <Filter>EmGine\Game Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include/Shader.h">
+      <Filter>EmGine\Shader Stuff</Filter>
+    </ClInclude>
+    <ClInclude Include="include/ShaderCombiner.h">
+      <Filter>EmGine\Shader Stuff</Filter>
+    </ClInclude>
+    <ClInclude Include="include/XinputManager.h">
+      <Filter>EmGine\Resource Management</Filter>
+    </ClInclude>
+    <ClInclude Include="include/WindowCreator.h">
+      <Filter>EmGine\Game Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include/Utilities.h">
+      <Filter>EmGine\Data Types</Filter>
+    </ClInclude>
+    <ClInclude Include="include/Text.h">
+      <Filter>EmGine\Text Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="include/SkyBox.h">
+      <Filter>EmGine\Game Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include/Sprite.h">
+      <Filter>EmGine\Game Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include/Texture.h">
+      <Filter>EmGine\Data Types</Filter>
+    </ClInclude>
+    <ClInclude Include="include/Transformer.h">
+      <Filter>EmGine\Game Engine</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="include/Physics3D.cpp" />
+    <ClCompile Include="include/Animation.cpp">
+      <Filter>EmGine\Game Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="include/Camera.cpp">
+      <Filter>EmGine\Game Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="include/Character.cpp">
+      <Filter>EmGine\Text Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="include/Component.cpp">
+      <Filter>EmGine\Game Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="include/EmGineAudioPlayer.cpp">
+      <Filter>EmGine\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="include/fileIO.cpp">
+      <Filter>EmGine\File I/O</Filter>
+    </ClCompile>
+    <ClCompile Include="include/FrameBuffer.cpp">
+      <Filter>EmGine\Game Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="include/GameEmGine.cpp">
+      <Filter>EmGine\Game Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="include/ImageLoader.cpp">
+      <Filter>EmGine\Resource Management</Filter>
+    </ClCompile>
+    <ClCompile Include="include/InputManager.cpp">
+      <Filter>EmGine\Resource Management</Filter>
+    </ClCompile>
+    <ClCompile Include="include/LightManager.cpp">
+      <Filter>EmGine\Resource Management</Filter>
+    </ClCompile>
+    <ClCompile Include="include/Matrix.cpp">
+      <Filter>EmGine\Data Types</Filter>
+    </ClCompile>
+    <ClCompile Include="include/Mesh.cpp">
+      <Filter>EmGine\Game Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="include/MeshLoader.cpp">
+      <Filter>EmGine\Resource Management</Filter>
+    </ClCompile>
+    <ClCompile Include="include/Model.cpp">
+      <Filter>EmGine\Game Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="include/Quat.cpp">
+      <Filter>EmGine\Data Types</Filter>
+    </ClCompile>
+    <ClCompile Include="include/ResourceManager.cpp">
+      <Filter>EmGine\Resource Management</Filter>
+    </ClCompile>
+    <ClCompile Include="include/SceneManager.cpp">
+      <Filter>EmGine\Resource Management</Filter>
+    </ClCompile>
+    <ClCompile Include="include/Shader.cpp">
+      <Filter>EmGine\Shader Stuff</Filter>
+    </ClCompile>
+    <ClCompile Include="include/ShaderCombiner.cpp">
+      <Filter>EmGine\Shader Stuff</Filter>
+    </ClCompile>
+    <ClCompile Include="include/XinputManager.cpp">
+      <Filter>EmGine\Resource Management</Filter>
+    </ClCompile>
+    <ClCompile Include="include/WindowCreator.cpp">
+      <Filter>EmGine\Game Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="include/Text.cpp">
+      <Filter>EmGine\Text Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="include/SkyBox.cpp">
+      <Filter>EmGine\Game Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="include/Sprite.cpp">
+      <Filter>EmGine\Game Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="include/Transformer.cpp">
+      <Filter>EmGine\Game Engine</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="EmGine">
+      <UniqueIdentifier>{e3d15f09-4f84-4b0e-90e3-93544f5ed174}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmGine\Data Types">
+      <UniqueIdentifier>{b1b8bd2d-c9ef-4312-be31-a4f627fc7025}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmGine\Game Engine">
+      <UniqueIdentifier>{e37a305d-43c9-4ff3-9f29-417020fa4b78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmGine\Shader Stuff">
+      <UniqueIdentifier>{bd22f3e9-7094-4193-8787-3ad8cdf2a642}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmGine\Audio">
+      <UniqueIdentifier>{455a346d-f6c6-4bf4-ab90-c96c06c4406b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmGine\Resource Management">
+      <UniqueIdentifier>{9ede1b93-f3f0-450f-b7f3-8c78f40241af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmGine\File I/O">
+      <UniqueIdentifier>{c6e045cb-8f5d-4965-b695-f33b33e3bbac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmGine\Text Rendering">
+      <UniqueIdentifier>{17b1cc08-3d7b-489d-9ee6-b842a0aa4a47}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

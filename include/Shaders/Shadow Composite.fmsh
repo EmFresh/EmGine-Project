@@ -1,0 +1,55 @@
+#version 420
+
+uniform sampler2D uScene;
+uniform sampler2D uPosition;
+uniform sampler2D uNormOP;
+uniform sampler2D uShadow; 
+uniform mat4 uLightViewProj;
+uniform vec4 uLightDirection;
+uniform bool uShadowEnable = true;
+uniform float uOpacity = .5;
+
+in vec2 texcoord;
+out vec4 outColour;
+
+float calculateShadow()
+{
+    vec4 fragPosLightSpace = uLightViewProj * texture(uPosition, texcoord);
+
+    vec3 projCoord = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    projCoord = projCoord * 0.5 + 0.5;
+
+    vec3 norm = texture(uNormOP, texcoord).xyz;
+    
+    vec2 texelSize = 1.0 / textureSize(uShadow, 0);
+    float shadow = 0;
+    float currentDepth = projCoord.z;
+    float bias = max(0.007 * (1 - dot(norm, uLightDirection.xyz)), 0.005);
+    if(
+        projCoord.x >= 1||
+        projCoord.y >= 1||
+        !bool(length(texture(uPosition, texcoord).xyz))||
+        texture(uShadow,projCoord.xy).r==1
+    ) 
+    return 1;//errors occur 
+
+    for(int x = -1; x <= 1; ++x)
+        for(int y = -1; y <= 1; ++y)
+        {
+            float PCFtDepth = texture(uShadow, projCoord.xy + vec2(x, y) * texelSize).r;
+            shadow += (currentDepth - bias >= PCFtDepth ? 0 : 1);
+        }
+    shadow *= 0.11111111111111111111111111111111;//shadow /= 9(Not sure if this will work)
+    
+    return clamp(shadow + (1 - uOpacity) , 0, 1);
+}
+
+void main()
+{
+    float shadow = calculateShadow();
+    vec3 colourA = texture(uScene,texcoord).rgb;
+    vec3 colourB = vec3(shadow) * int(uShadowEnable);
+
+    outColour.rgb = colourA * colourB;
+    outColour.a = 1.0;
+}
