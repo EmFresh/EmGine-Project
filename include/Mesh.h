@@ -152,24 +152,24 @@ struct PrimitivePlane:public PrimitiveMesh
 		glm::vec4 holder{};
 		//bottom left tri
 		tmp.push_back({getLocalPosition() + reclass(util::Vec3,holder = getLocalRotationMatrix() *
-			glm::vec4((util::Vec3{-halfW,-halfH, halfD}).toVec3(), 1)
+			glm::vec4((util::Vec3{-halfW,-halfH, halfD}).tovec3(), 1)
 			)});//bottom left
 		tmp.push_back({getLocalPosition() + reclass(util::Vec3,holder = getLocalRotationMatrix() *
-			glm::vec4((util::Vec3{ halfW,-halfH,-halfD}).toVec3(), 1)
+			glm::vec4((util::Vec3{ halfW,-halfH,-halfD}).tovec3(), 1)
 			)});//bottom right*
 		tmp.push_back({getLocalPosition() + reclass(util::Vec3,holder = getLocalRotationMatrix() *
-			glm::vec4((util::Vec3{-halfW, halfH,-halfD}).toVec3(), 1)
+			glm::vec4((util::Vec3{-halfW, halfH,-halfD}).tovec3(), 1)
 			)});//top left*
 
 		  //top right tri
 		tmp.push_back({getLocalPosition() + reclass(util::Vec3,holder = getLocalRotationMatrix() *
-			glm::vec4((util::Vec3{ halfW, halfH,-halfD}).toVec3(), 1)
+			glm::vec4((util::Vec3{ halfW, halfH,-halfD}).tovec3(), 1)
 			)});//top right
 		tmp.push_back({getLocalPosition() + reclass(util::Vec3,holder = getLocalRotationMatrix() *
-			glm::vec4((util::Vec3{-halfW, halfH, halfD}).toVec3(), 1)
+			glm::vec4((util::Vec3{-halfW, halfH, halfD}).tovec3(), 1)
 			)});//top left*
 		tmp.push_back({getLocalPosition() + reclass(util::Vec3,holder = getLocalRotationMatrix() *
-			glm::vec4((util::Vec3{ halfW,-halfH, halfD}).toVec3(), 1)
+			glm::vec4((util::Vec3{ halfW,-halfH, halfD}).tovec3(), 1)
 			)});//bottom right*
 
 
@@ -304,8 +304,8 @@ public:
 		{
 			glm::mat4 rot = getLocalRotationMatrix();
 			glm::vec4 holder;
-			a.coord = reclass(util::Vec3, holder = rot * glm::vec4(a.coord.toVec3(), 1));
-			a.norm = reclass(util::Vec3, holder = rot * glm::vec4(a.norm.toVec3(), 1));
+			a.coord = reclass(util::Vec3, holder = rot * glm::vec4(a.coord.tovec3(), 1));
+			a.norm = reclass(util::Vec3, holder = rot * glm::vec4(a.norm.tovec3(), 1));
 		}
 
 		if(m_invert)

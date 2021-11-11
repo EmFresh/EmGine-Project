@@ -130,8 +130,8 @@ void Shader::createDefault()
 
 		"void main()\n"
 		"{\n"
-		"outColor1 = vec4(0, 0, 0, 1);\n"
-		"outColor2 = vec4(0, 0, 0, 1);\n"
+		"outColor1 = vec4(1, 0, 1, 1);\n"
+		"outColor2 = vec4(1, 0, 1, 1);\n"
 		"outColor3 = vec4(1, 0, 1, 1);\n"
 		"}\n"
 		;

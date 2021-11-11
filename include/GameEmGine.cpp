@@ -42,17 +42,17 @@ bool GameEmGine::lutActive = false;
 
 void GLAPIENTRY
 GameEmGine::MessageCallback(GLenum source,
-							GLenum type,
-							GLuint id,
-							GLenum severity,
-							GLsizei length,
-							const GLchar* message,
-							const void* userParam)
+	GLenum type,
+	GLuint id,
+	GLenum severity,
+	GLsizei length,
+	const GLchar* message,
+	const void* userParam)
 {
 	source, id, length, userParam;
 	fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
-			(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
-			type, severity, message);
+		(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
+		type, severity, message);
 }
 
 Texture3D GameEmGine::tmpLUT;
@@ -372,12 +372,12 @@ Model* GameEmGine::getMouseCollisionObject()
 	Vec2 mPos = InputManager::getMousePosition();
 	mPos.y = getWindowHeight() - mPos.y;
 
+	uint id = 0;
 
 	m_gBuff->enable();
 
 	glReadBuffer(GL_COLOR_ATTACHMENT0 + 6);
 
-	uint id = 50;
 	glReadPixels(int(mPos.x), int(mPos.y), 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, &id);
 
 	m_gBuff->disable();
@@ -463,13 +463,11 @@ void GameEmGine::update()
 	FrameBuffer::clearBackBuffer();
 
 
-	m_gBuff->clear();//buffer must be black
-	//glClearColor((float)m_colour.r / 255, (float)m_colour.g / 255, (float)m_colour.b / 255, (float)m_colour.a / 255);//BG colour
+	m_gBuff->clear();//colour buffer must be black
 	m_gBuff->clearSingleColour(m_colour, 4);//this is the colour buffer
-	m_gBuff->clearSingleColour({0,0,0,0}, 6);//this is the ID buffer
+	//m_gBuff->clearSingleColour({0,0,0,0}, 6);//this is the ID buffer
 
-	//glClearColor((float)m_colour.r / 255, (float)m_colour.g / 255, (float)m_colour.b / 255, (float)m_colour.a / 255);//BG colour
-	m_postBuffer->clear(m_colour);
+	m_postBuffer->clear(NULL, m_colour);
 
 	m_mainCamera->update();
 
@@ -501,7 +499,7 @@ void GameEmGine::update()
 
 	//sky box
 	m_gBuff->enable();
-	if(m_mainScene->skyBoxEnabled)
+	if(/*m_mainScene->skyBoxEnabled*/false)
 		(*(SkyBox*)&m_mainScene->getSkyBox()).render();
 	m_gBuff->disable();
 
@@ -509,6 +507,9 @@ void GameEmGine::update()
 	m_gBuff->enable();
 	m_mainCamera->render(m_gBufferShader, m_models, true);
 	m_gBuff->disable();
+
+
+
 
 #pragma region Light Accumulation
 
@@ -558,20 +559,23 @@ void GameEmGine::update()
 	m_postBuffer->disable();
 
 	//Apply shadows
-	LightManager::shadowRender(1920, 1080,500, m_postBuffer, m_gBuff, m_models);
+	LightManager::shadowRender(500, 500, 500, m_postBuffer, m_gBuff, m_models);
+
 
 	m_postBuffer->setViewport(0, 0, 0);
+
 	//post effects
 	if(m_customRender)
 		m_customRender(m_gBuff, m_postBuffer, (float)glfwGetTime());
+
 
 	m_postBuffer->copyColourToBackBuffer(getWindowWidth(), getWindowHeight());
 	m_postBuffer->copyDepthToBackBuffer(getWindowWidth(), getWindowHeight());
 
 
+
 	if(m_gameLoop != nullptr)
 		m_gameLoop(glfwGetTime());
-
 	glfwPollEvents();//updates the event handlers
 }
 
@@ -614,7 +618,7 @@ void GameEmGine::changeViewport(GLFWwindow*, int w, int h)
 
 #if FALSE
 
-class Test:public Scene
+class Test :public Scene
 {
 	void onSceneExit() {}
 

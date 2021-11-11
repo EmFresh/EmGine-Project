@@ -40,12 +40,12 @@ public:
 	static void setClearColour(GLclampf r, GLclampf g, GLclampf b, GLclampf a);
 
 	// Clears all attached textures (can specify only depth or colour)
-	void clear(util::ColourRGBA = {0,0,0,255}, GLbitfield = 0);
+	void clear( GLbitfield = 0,util::ColourRGBA = {0,0,0,255});
 
 	void clearSingleColour(util::ColourRGBA, int index = 0);
 
 	static void clearBackBuffer(bool clearCol = true, bool clearDep = true);
-	//binds objects to frame buffer/s
+	//binds objects to frame buffer
 	void enable();
 
 	//binds the frame buffer to the default location
@@ -53,7 +53,6 @@ public:
 
 
 	///~ Helper Functions ~///
-
 
 	void setViewport(int x, int y, int width, int height);
 	void setViewport(int x, int y, uint colourIndex);

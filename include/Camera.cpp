@@ -127,7 +127,7 @@ bool Camera::update()
 			Transformer::rotateBy(m_rotateBy);
 
 
-		Transformer::scale(m_scale);
+		Transformer::scale(m_scale);//so the data is stored in transform too
 		m_viewMat = m_matricies.m_worldTranslate * m_matricies.m_worldRotate *
 			glm::inverse(m_matricies.m_localTranslate * m_matricies.m_localRotate);
 
@@ -140,7 +140,7 @@ bool Camera::update()
 			m_isTranslate = m_isTranslateBy =
 			m_cameraUpdate = false;
 
-		m_camRotation = Transformer::getLocalRotation() * Vec3 { 1, -1, 1 };
+		m_camRotation = (Transformer::getLocalRotation() * Vec3 { 1, -1, 1 });
 
 		return true;
 	}
@@ -209,12 +209,12 @@ bool Camera::cull(Model* mod)
 	auto dim = mod->getDimentions();
 
 
-	glm::vec4 tmpTrans = glm::vec4(center.toVec3(), 1);
+	glm::vec4 tmpTrans = glm::vec4(center.tovec3(), 1);
 
 	tmpTrans = getCameraMatrix() * tmpTrans;
 	tmpTrans /= tmpTrans.w;
 
-	glm::vec4 tmpScale = glm::vec4(dim.toVec3(), 1);
+	glm::vec4 tmpScale = glm::vec4(dim.tovec3(), 1);
 	tmpScale = getProjectionMatrix() * tmpScale;
 	tmpScale /= tmpScale.w;
 

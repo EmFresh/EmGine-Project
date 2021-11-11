@@ -64,16 +64,16 @@ void LightManager::shadowRender(unsigned w, unsigned h, float d, FrameBuffer* to
 {
 	if(!m_enableShadows)return;
 
-	Camera cam(Camera::ORTHOGRAPHIC, {(float)w,(float)h,(float)w});
+	Camera cam(Camera::ORTHOGRAPHIC, {(float)w * .1f,(float)h * .1f,d});
 	static glm::mat4 lsm(1);
 
 
 
 	glViewport(0, 0, w, h);
-	if(m_shadows)
+	if(m_shadows)//frame buffer exists? make sure to resize
 	{
-		m_shadows->resizeColour(0, w, h);
 		m_shadows->resizeDepth(w, h);
+		m_shadows->resizeColour(0, w, h);
 	}
 
 	for(uint a = 0; a < m_lights.size(); ++a)
@@ -84,13 +84,15 @@ void LightManager::shadowRender(unsigned w, unsigned h, float d, FrameBuffer* to
 		if(m_lights[a]->type == Light::TYPE::DIRECTIONAL)
 		{
 
-			cam.translate(-m_lights[a]->getLocalPosition());
+			//cam.setParent(m_lights[a]->getParent());
+			cam.translate(Vec3{(float)w * .1f,(float)h * .1f,d} *-cam.getForward());
+			//cam.rotate(m_lights[a]->getLocalRotation());
 
 			//initialize shadow buffer
 			if(!m_shadows)
 			{
 				m_shadows = new FrameBuffer(1, "shadow buffer");
-				m_shadows->initColourTexture(w, h, GL_RGB, GL_RGB8);
+				m_shadows->initColourTexture(0, w, h, GL_RGB, GL_RGB8);
 				m_shadows->initDepthTexture(w, h);
 				if(!m_shadows->checkFBO())
 				{
@@ -101,51 +103,17 @@ void LightManager::shadowRender(unsigned w, unsigned h, float d, FrameBuffer* to
 			}
 
 			Shader* shad = ResourceManager::getShader("Shaders/ShadowDepth.vtsh", "Shaders/ShadowDepth.fmsh");
-			m_shadows->clear();
-
-			glm::vec4 dir(0, 0, 1, 1);
-			d = float(w > h ? w : h);
+			m_shadows->clear(NULL, {0,0,0,255});
+			
+			//	glm::vec4 dir(0, 0, 1, 1);
+			//	d = float(w > h ? w : h);
 			shad->enable();
-			shad->sendUniform("lightSpaceMatrix", lsm =
-				cam.getProjectionMatrix() *
-				glm::lookAt(
-					glm::vec3(dir = m_lights[a]->getWorldRotationMatrix() *
-						(m_lights[a]->getLocalRotationMatrix() * dir)) *
-					glm::vec3(w * .5f, h * .5f, w * .5f),
-					glm::vec3(),
-					glm::vec3(0, 1, 0)));
+			shad->sendUniform("lightSpaceMatrix", lsm = cam.getProjectionMatrix() * (glm::inverse(m_lights[a]->getLocalRotationMatrix()) * cam.getViewMatrix()));
 			shad->disable();
 
-			dir = -dir;
+			//	dir = -dir;
 
-			//// use this for point lights
 
-			//for(int b = 0; b < 6; b++)
-			//{
-			//
-			//
-			//	//	switch(b)
-			//	//	{
-			//	//	case 0:
-			//	//		cam.rotate(90 * Vec3{1, 0, 0});
-			//	//		break;
-			//	//	case 1:
-			//	//		cam.rotate(90 * Vec3{-1, 0, 0});
-			//	//		break;
-			//	//	case 2:
-			//	//		cam.rotate(90 * Vec3{0, 1, 0});
-			//	//		break;
-			//	//	case 3:
-			//	//		cam.rotate(90 * Vec3 {0, -1, 0});
-			//	//		break;
-			//	//	case 4:
-			//	//		cam.rotate({0, 0, 0});
-			//	//		break;
-			//	//	case 5:
-			//	//		cam.rotate(180 * Vec3{0, -1, 0});
-			//	//		break;
-			//	//	}
-			//}
 
 				//get shadow view
 			//	glDisable(GL_CULL_FACE);
@@ -194,18 +162,19 @@ void LightManager::shadowRender(unsigned w, unsigned h, float d, FrameBuffer* to
 			//render shadow 
 			to->setViewport(0, 0, 0);
 			to->copyDepthToBackBuffer(to->getDepthWidth(), to->getDepthHeight());
+			to->clear(GL_DEPTH_BUFFER_BIT);
 
 			to->enable();
-			glClear(GL_DEPTH_BUFFER_BIT);
+		//	glClear(GL_DEPTH_BUFFER_BIT);
 
 			Shader* m_shadowCompShader = ResourceManager::getShader("shaders/Passthrough.vtsh", "shaders/Shadow Composite.fmsh");
 
 			m_shadowCompShader->enable();
 			m_shadowCompShader->sendUniform("uScene", 0);
-			m_shadowCompShader->sendUniform("uPosition", 1);
+			m_shadowCompShader->sendUniform("uPositionOP", 1);
 			m_shadowCompShader->sendUniform("uNormOP", 2);
 			m_shadowCompShader->sendUniform("uShadow", 3);
-			m_shadowCompShader->sendUniform("uLightDirection", dir);
+			m_shadowCompShader->sendUniform("uLightDirection", -m_lights[a]->getForward());
 			m_shadowCompShader->sendUniform("uLightViewProj", lsm);
 			m_shadowCompShader->sendUniform("uShadowEnable", true);
 
@@ -214,7 +183,7 @@ void LightManager::shadowRender(unsigned w, unsigned h, float d, FrameBuffer* to
 			gBuff->getColorTexture(2).bindTexture(2);
 			Texture2D::bindTexture(3, m_shadows->getDepthHandle());
 
-			FrameBuffer::drawFullScreenQuad();
+			FrameBuffer::drawFullScreenQuad();//create image with shadow attached
 
 			//un-bind textures
 			for(int b = 0; b < 4; ++b)
@@ -226,7 +195,34 @@ void LightManager::shadowRender(unsigned w, unsigned h, float d, FrameBuffer* to
 			to->takeFromBackBufferDepth(to->getDepthWidth(), to->getDepthHeight());
 
 		}
+		//// use this for point lights
 
+		//for(int b = 0; b < 6; b++)
+		//{
+		//
+		//
+		//	//	switch(b)
+		//	//	{
+		//	//	case 0:
+		//	//		cam.rotate(90 * Vec3{1, 0, 0});
+		//	//		break;
+		//	//	case 1:
+		//	//		cam.rotate(90 * Vec3{-1, 0, 0});
+		//	//		break;
+		//	//	case 2:
+		//	//		cam.rotate(90 * Vec3{0, 1, 0});
+		//	//		break;
+		//	//	case 3:
+		//	//		cam.rotate(90 * Vec3 {0, -1, 0});
+		//	//		break;
+		//	//	case 4:
+		//	//		cam.rotate({0, 0, 0});
+		//	//		break;
+		//	//	case 5:
+		//	//		cam.rotate(180 * Vec3{0, -1, 0});
+		//	//		break;
+		//	//	}
+		//}
 	}
 }
 
@@ -243,8 +239,6 @@ void LightManager::update()
 
 	if(m_framebuffer)
 		m_framebuffer->enable();
-
-
 	//bind textures
 	Texture2D::bindTexture(0, m_gBuffLit->getColourHandle(0));
 	Texture2D::bindTexture(1, m_gBuffLit->getColourHandle(1));
@@ -270,6 +264,7 @@ void LightManager::update()
 			m_shader = ResourceManager::getShader("Shaders/PassThrough.vtsh", "Shaders/SpotLight.frag");
 			break;
 		}
+		
 		m_shader->enable();
 
 
@@ -298,7 +293,10 @@ void LightManager::update()
 		glm::vec4 dir(0, 0, 1, 1.0f);
 
 
-		pos = m_lights[a]->getWorldTranslationMatrix() * (m_lights[a]->getLocalTranslationMatrix() * glm::vec4(m_lights[a]->getLocalPosition().toVec3(), 1));
+		pos = m_lights[a]->getWorldTranslationMatrix() * (m_lights[a]->getLocalTranslationMatrix() * glm::vec4(m_lights[a]->getLocalPosition().tovec3(), 1));
+
+		dir = (m_lights[a]->getWorldRotationMatrix()) * ((m_lights[a]->getLocalRotationMatrix()) * dir);
+		dir = normalize(dir);
 		//	pos = m_cam->getProjectionMatrix() * pos;
 		//	pos.z *= -1;
 			//if(pos.w)
@@ -308,11 +306,12 @@ void LightManager::update()
 
 
 			//pos = glm::normalize(pos);
+
+
+#pragma region Uniform Set & Draw
+
 		m_shader->sendUniform("LightPosition", pos);
 
-
-		dir = (m_lights[a]->getWorldRotationMatrix()) * ((m_lights[a]->getLocalRotationMatrix()) * dir);
-		dir = normalize(dir);
 
 		pos = {0, 0, 0, 1.0f};
 		pos = inverse(m_cam->getViewMatrix()) * pos;
@@ -344,11 +343,12 @@ void LightManager::update()
 
 		FrameBuffer::drawFullScreenQuad();
 		m_shader->sendUniform("LightEnable", false);
+#pragma endregion
 	}
 
 
 	//un-bind textures
-	for(int a = 0; a < 5; ++a)
+	for(int a = 0; a < 7; ++a)
 		Texture2D::unbindTexture(a);
 
 	m_shader->disable();

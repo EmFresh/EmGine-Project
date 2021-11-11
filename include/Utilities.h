@@ -398,17 +398,17 @@ namespace util
 			this->z = 0;
 		}
 
-		glm::vec3 toVec3()
+		glm::vec3 tovec3()
 		{
 			return glm::vec3{x,y,z};
 		}
 
-		static glm::vec3 toVec3(Coord3D<float> a0)
+		static glm::vec3 tovec3(Coord3D<float> a0)
 		{
 			return reclass(glm::vec3, a0);
 		}
 
-		static glm::vec3 toVec3(Coord3D<int> a0)
+		static glm::vec3 tovec3(Coord3D<int> a0)
 		{
 			return reclass(glm::vec3, a0);
 		}

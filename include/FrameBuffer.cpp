@@ -58,8 +58,8 @@ void FrameBuffer::initDepthTexture(unsigned width, unsigned height)
 void FrameBuffer::resizeColour(unsigned index, unsigned width, unsigned height, GLint internalFormat, GLint format, GLint formatType, GLint filter, GLint wrap)
 {
 	if(!(width && height) ||
-	   (m_colorAttachments[index].size.width == (int)width &&
-	   m_colorAttachments[index].size.height == (int)height))return;
+		(m_colorAttachments[index].size.width == (int)width &&
+			m_colorAttachments[index].size.height == (int)height))return;
 
 	if(m_colorAttachments[index].id)
 	{
@@ -143,6 +143,8 @@ void FrameBuffer::resizeDepth(unsigned width, unsigned height)
 
 bool FrameBuffer::checkFBO()
 {
+	int lastID = 0;
+	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &lastID);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_fboID);
 
 	GLenum error = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -164,7 +166,7 @@ bool FrameBuffer::checkFBO()
 		return false;
 	}
 
-	glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, lastID);
 	return true;
 }
 
@@ -205,25 +207,22 @@ void FrameBuffer::setClearColour(ColourRGBA col)
 
 void FrameBuffer::setClearColour(GLclampf r, GLclampf g, GLclampf b, GLclampf a)
 {
-
 	glClearColor(r, g, b, a);//BG colour
 }
 
 // Clears all attached textures
-void FrameBuffer::clear(ColourRGBA colour, GLbitfield clearBit)
+void FrameBuffer::clear(GLbitfield clearBit,ColourRGBA colour)
 {
 	GLbitfield temp = 0;
 
 	if(m_depthAttachment != GL_NONE)
-	{
 		temp |= GL_DEPTH_BUFFER_BIT;
-	}
 
 	if(m_colorAttachments != nullptr)
-	{
 		temp |= GL_COLOR_BUFFER_BIT;
-	}
-	glClearColor(colour.getf4()[0], colour.getf4()[1], colour.getf4()[2], colour.getf4()[3]);
+
+	setClearColour(colour);
+
 	enable();
 	glClear(clearBit ? clearBit : temp);
 	disable();

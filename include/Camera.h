@@ -33,7 +33,12 @@ public:
 	void setType(ProjectionPeramiters* peram = nullptr);
 	bool update();
 	bool cull(Model*);
-
+	
+	/// <summary>
+	/// the width, height, and depth of the draw plane bounds
+	/// </summary>
+	/// <returns>size of bounds (util::vec3)</returns>
+	
 	/*SET POSITION*/
 
 	void translate(float x, float y, float z);

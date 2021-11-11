@@ -307,7 +307,7 @@ void Model::render(Shader& shader, Camera* cam)
 
 	shader.sendUniform("uLocalModel", getLocalTransformation());
 	shader.sendUniform("uWorldModel", getWorldTransformation());
-	shader.sendUniform("colourMod", reclass(glm::vec4, colour));
+	shader.sendUniform("colourMod",  m_colour.getf4());
 	shader.sendUniform("flip", true);
 	shader.sendUniform("colourID", m_ID);
 	shader.disable();
@@ -352,7 +352,7 @@ void Model::render(Shader& shader, Camera* cam)
 
 		//	for(auto& a : threads) a.join();//rejoin all loose threads
 
-		resetUpdated();
+		Transformer::resetUpdated();
 		if(m_activators.m_wireframe)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
