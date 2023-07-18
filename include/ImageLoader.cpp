@@ -94,6 +94,11 @@ Texture3D ImageLoader::loadImage3D(cstring LUTfile)
 	return texture;
 }
 
+/// <summary>
+/// Images must have a _left, _right, _top, _bottom, _front, _backat the end of iiimage to be regestered
+/// </summary>
+/// <param name="SBpath">the Sky Box Path</param>
+/// <returns>A Texture3D with all the information. else a default Texture3D</returns>
 Texture3D ImageLoader::createCubeMap(cstring SBpath)
 {
 	Texture3D texture = Texture3D();

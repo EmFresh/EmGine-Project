@@ -44,10 +44,10 @@ void Camera::setType(CAM_TYPE type, ProjectionPeramiters* peram)
 	case ORTHOGRAPHIC:
 		if(!peram)
 			m_projMat = glm::ortho(-m_size.width * .5f, m_size.width * .5f,
-								   -m_size.height * .5f, m_size.height * .5f, 0.f, m_size.depth);
+				-m_size.height * .5f, m_size.height * .5f, 0.f, m_size.depth);
 		else
 			m_projMat = glm::ortho(peram1->left, peram1->right,
-								   peram1->bottom, peram1->top, peram1->zNear, peram1->zFar);
+				peram1->bottom, peram1->top, peram1->zNear, peram1->zFar);
 
 		break;
 	case FRUSTUM:
@@ -55,7 +55,7 @@ void Camera::setType(CAM_TYPE type, ProjectionPeramiters* peram)
 			m_projMat = glm::perspective(glm::radians(45.f), m_size.width / m_size.height, .001f, m_size.depth);
 		else
 			m_projMat = glm::perspective(glm::radians(peram2->angle),
-										 peram2->aspect ? peram2->aspect : m_size.width / m_size.height, peram2->zNear, peram2->zFar);
+				peram2->aspect ? peram2->aspect : m_size.width / m_size.height, peram2->zNear, peram2->zFar);
 		break;
 	default:
 		m_projMat = glm::mat4(1);
@@ -79,10 +79,10 @@ void Camera::setType(ProjectionPeramiters* peram)
 	case ORTHOGRAPHIC:
 		if(!peram)
 			m_projMat = glm::ortho(-m_size.width * .5f, m_size.width * .5f,
-								   -m_size.height * .5f, m_size.height * .5f, 0.0f, m_size.depth);
+				-m_size.height * .5f, m_size.height * .5f, 0.0f, m_size.depth);
 		else
 			m_projMat = glm::ortho(peram1->left, peram1->right,
-								   peram1->bottom, peram1->top, peram1->zNear, peram1->zFar);
+				peram1->bottom, peram1->top, peram1->zNear, peram1->zFar);
 
 		break;
 	case FRUSTUM:
@@ -90,7 +90,7 @@ void Camera::setType(ProjectionPeramiters* peram)
 			m_projMat = glm::perspective(glm::radians(45.f), m_size.width / m_size.height, .001f, m_size.depth);
 		else
 			m_projMat = glm::perspective(glm::radians(peram2->angle),
-										 peram2->aspect ? peram2->aspect : m_size.width / m_size.height, peram2->zNear, peram2->zFar);
+				peram2->aspect ? peram2->aspect : m_size.width / m_size.height, peram2->zNear, peram2->zFar);
 		break;
 	default:
 		m_projMat = glm::mat4(1);
@@ -133,7 +133,7 @@ bool Camera::update()
 
 		m_cameraMat = m_projMat * m_viewMat;
 
-		m_rotateBy = m_positionBy = Vec3{0,0,0};
+		m_rotateBy = m_positionBy = Vec3{0, 0, 0};
 
 
 		m_isRotate = m_isRotateBy =
@@ -149,20 +149,20 @@ bool Camera::update()
 
 void Camera::translate(float x, float y, float z)
 {
-	translate({x,y,z});
+	translate({x, y, z});
 }
 
 void Camera::translate(Vec3 position)
 {
 
 	m_position = position;
-	m_positionBy = {0,0,0};
+	m_positionBy = {0, 0, 0};
 	m_isTranslate = m_cameraUpdate = true;
 }
 
 void Camera::translateBy(float x, float y, float z)
 {
-	translateBy({x,y,z});
+	translateBy({x, y, z});
 }
 
 void  Camera::translateBy(Vec3 position)
@@ -181,14 +181,14 @@ void Camera::scale(const float scale)
 void Camera::rotate(Vec3 angle)
 {
 	m_rotate = angle;
-	m_rotateBy = {0,0,0};
+	m_rotateBy = {0, 0, 0};
 
 	m_isRotate = m_cameraUpdate = true;
 }
 
 void Camera::rotate(float x, float y, float z)
 {
-	rotate({x,y,z});
+	rotate({x, y, z});
 }
 
 void Camera::rotateBy(Vec3 angle)
@@ -199,7 +199,7 @@ void Camera::rotateBy(Vec3 angle)
 
 void Camera::rotateBy(float x, float y, float z)
 {
-	rotateBy({x,y,z});
+	rotateBy({x, y, z});
 }
 
 bool Camera::cull(Model* mod)
@@ -221,15 +221,15 @@ bool Camera::cull(Model* mod)
 	//ushort count=0;
 	if(dim.x)
 		if(abs(tmpTrans.x) >= 1 &&
-		   (abs(tmpTrans.x) - abs(tmpScale.x)) >= 1)
+			(abs(tmpTrans.x) - abs(tmpScale.x)) >= 1)
 			return true;
 	if(dim.y)
 		if(abs(tmpTrans.y) >= 1 &&
-		   (abs(tmpTrans.y) - abs(tmpScale.y)) >= 1)
+			(abs(tmpTrans.y) - abs(tmpScale.y)) >= 1)
 			return true;
 	if(dim.z)
 		if(abs(tmpTrans.z) >= 1 &&
-		   (abs(tmpTrans.z) - abs(tmpScale.z)) >= 1)
+			(abs(tmpTrans.z) - abs(tmpScale.z)) >= 1)
 			return true;
 
 
@@ -279,7 +279,8 @@ glm::mat4 Camera::getWorldTransformation()
 
 bool validityTest(Model* mod)
 {
-	try { mod->getLocalTransformation(); } catch(...) { return false; }
+	try { mod->getLocalTransformation(); }
+	catch(...) { return false; }
 
 	return true;
 }
@@ -292,24 +293,24 @@ void Camera::render(Shader* shader, const std::unordered_map<void*, Model*>& mod
 	std::vector<std::pair<void*, Model*>> models2(models.begin(), models.end());
 	Camera* tmpCam = this;
 	std::sort(models2.begin(), models2.end(),
-			  [tmpCam](std::pair<void*, Model*>a, std::pair<void*, Model*>b)->bool
-	{
-
-	#pragma region Stupid Validity Test
-		int count = !validityTest(a.second) ? (!validityTest(b.second) ? 2 : 1) : (!validityTest(b.second) ? 1 : 0);
-
-		if(count)
+		[tmpCam](std::pair<void*, Model*>a, std::pair<void*, Model*>b)->bool
 		{
-			if(count == 2)	return true;//both
 
-			return validityTest(a.second) ? true : false;
-		}
-	#pragma endregion
+		#pragma region Stupid Validity Test
+			int count = !validityTest(a.second) ? (!validityTest(b.second) ? 2 : 1) : (!validityTest(b.second) ? 1 : 0);
 
-		return
-			(a.second->getLocalPosition() - tmpCam->getLocalPosition()) >
-			(b.second->getLocalPosition() - tmpCam->getLocalPosition());
-	});
+			if(count)
+			{
+				if(count == 2)	return true;//both
+
+				return validityTest(a.second) ? true : false;
+			}
+		#pragma endregion
+
+			return
+				(a.second->getLocalPosition() - tmpCam->getLocalPosition()) >
+				(b.second->getLocalPosition() - tmpCam->getLocalPosition());
+		});
 
 	//remove invalid instances
 	for(auto a = models2.end() - 1; a >= models2.begin(); --a)

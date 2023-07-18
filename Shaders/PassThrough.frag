@@ -52,7 +52,7 @@ void defaultLight()
 
 void spotLight()
 {
-
+   
 }
 
 void pointLight()

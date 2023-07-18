@@ -17,7 +17,7 @@ Mesh::Mesh(Mesh& mesh) : Component(MESH)
 Mesh::~Mesh()
 {
 #if _DEBUG
-	//	printf("Deleted Mesh\n");
+		printf("Deleted Mesh\n");
 #endif // _DEBUG
 
 	if(!ani)
@@ -26,7 +26,6 @@ Mesh::~Mesh()
 
 bool Mesh::loadPrimitive(PrimitiveMesh* mesh)
 {
-
 	if(!mesh)
 		return false;
 	unload();
@@ -55,6 +54,8 @@ bool Mesh::loadPrimitive(PrimitiveMesh* mesh)
 
 void Mesh::render(Shader& shader, bool enableTex)
 {
+	if (!m_indicieData.size())return;
+
 	shader.enable();
 
 	bool textured = false;
@@ -71,7 +72,9 @@ void Mesh::render(Shader& shader, bool enableTex)
 					shader.sendUniform("uTex", b++);
 				}
 
-	glUniform1i(shader.getUniformLocation("textured"), textured);
+	//glUniform1i(shader.getUniformLocation("textured"), textured);
+	shader.sendUniform("textured", textured);
+
 
 	glBindVertexArray(m_vaoID);
 
@@ -85,7 +88,8 @@ void Mesh::render(Shader& shader, bool enableTex)
 		GL_UNSIGNED_INT,					// data type
 		(void*)0							// element array buffer offset
 	);
-
+	// Index buffer
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
 	for(; b >= 0; b--)

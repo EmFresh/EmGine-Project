@@ -2,7 +2,7 @@
 #include <GL\glew.h>
 #include "Utilities.h"
 
-enum class TEXTURE_TYPE2D:unsigned
+enum class TEXTURE_TYPE2D :unsigned
 {
 	NONE,
 	DIFFUSE,
@@ -10,7 +10,7 @@ enum class TEXTURE_TYPE2D:unsigned
 	ROUGHNESS
 };
 
-enum class TEXTURE_TYPE3D:unsigned
+enum class TEXTURE_TYPE3D :unsigned
 {
 	NONE,
 	LUT,
@@ -24,9 +24,9 @@ struct Texture2D
 	util::Coord2D<int> size;
 	TEXTURE_TYPE2D type = TEXTURE_TYPE2D::NONE;
 
-	std::string name,path;
+	std::string name, path;
 
-	Texture2D(){}
+	Texture2D() {}
 
 	//~Texture2D()
 	//{
@@ -87,7 +87,7 @@ struct Texture3D
 	util::Coord3D<int> size;
 	int lutSize;
 	TEXTURE_TYPE3D type;
-	Texture3D(TEXTURE_TYPE3D aType = TEXTURE_TYPE3D::NONE):type(aType) {};
+	Texture3D(TEXTURE_TYPE3D aType = TEXTURE_TYPE3D::NONE) :type(aType) {};
 
 	void deleteTexture()
 	{

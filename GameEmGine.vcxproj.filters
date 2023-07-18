@@ -197,5 +197,35 @@
     <Filter Include="EmGine\Text Rendering">
       <UniqueIdentifier>{17b1cc08-3d7b-489d-9ee6-b842a0aa4a47}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DLLs">
+      <UniqueIdentifier>{6cc60c30-97ac-485c-9246-e468dada0675}</UniqueIdentifier>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DLLS (include contents in project directory)\assimp-vc140-mt.dll">
+      <Filter>DLLs</Filter>
+    </None>
+    <None Include="DLLS (include contents in project directory)\fmod.dll">
+      <Filter>DLLs</Filter>
+    </None>
+    <None Include="DLLS (include contents in project directory)\fmod64.dll">
+      <Filter>DLLs</Filter>
+    </None>
+    <None Include="DLLS (include contents in project directory)\freetype.dll">
+      <Filter>DLLs</Filter>
+    </None>
+    <None Include="DLLS (include contents in project directory)\freetype_win32.dll">
+      <Filter>DLLs</Filter>
+    </None>
+    <None Include="DLLS (include contents in project directory)\freetype_win64.dll">
+      <Filter>DLLs</Filter>
+    </None>
+    <None Include="DLLS (include contents in project directory)\glew32.dll">
+      <Filter>DLLs</Filter>
+    </None>
+    <None Include="DLLS (include contents in project directory)\glfw3.dll">
+      <Filter>DLLs</Filter>
+    </None>
   </ItemGroup>
 </Project>

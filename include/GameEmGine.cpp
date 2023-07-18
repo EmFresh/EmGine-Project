@@ -17,7 +17,7 @@ FrameBuffer
 
 
 WindowCreator* m_window;	//must be init in the constructor
-ColourRGBA m_colour{58,58,58};
+ColourRGBA m_colour{58, 58, 58};
 
 std::unordered_map<std::string, FrameBuffer*> m_frameBuffers;
 std::unordered_map<void*, Model*> m_models;
@@ -92,7 +92,7 @@ void GameEmGine::createNewWindow(std::string name, int width, int height, int x,
 	if(m_window)
 		delete m_window;
 
-	m_window = new WindowCreator(name, {width,height}, Coord2D<int>{x, y}, monitor, fullScreen, visable);
+	m_window = new WindowCreator(name, {width, height}, Coord2D<int>{x, y}, monitor, fullScreen, visable);
 	m_window->m_onWindowResizeCallback = changeViewport;
 
 
@@ -104,7 +104,7 @@ void GameEmGine::createNewWindow(std::string name, int width, int height, int x,
 		return;
 	}
 
-	m_mainCamera = new Camera(Camera::FRUSTUM, {(float)getWindowWidth(), (float)getWindowHeight(),(float)getWindowWidth()});
+	m_mainCamera = new Camera(Camera::FRUSTUM, {(float)getWindowWidth(), (float)getWindowHeight(), (float)getWindowWidth()});
 
 
 
@@ -112,28 +112,28 @@ void GameEmGine::createNewWindow(std::string name, int width, int height, int x,
 
 	printf("created the window\n");
 
-	m_gBuff = new FrameBuffer(7, "Main Buffer");
 	m_postBuffer = new FrameBuffer(1, "Post Process Buffer");
-
-
-	m_gBuff->initDepthTexture(getWindowWidth(), getWindowHeight());
-	m_gBuff->initColourTexture(0, getWindowWidth(), getWindowHeight(), GL_RGBA, GL_RGBA16F, GL_FLOAT);
-	m_gBuff->initColourTexture(1, getWindowWidth(), getWindowHeight(), GL_RGBA, GL_RGBA16F, GL_FLOAT);
-	m_gBuff->initColourTexture(2, getWindowWidth(), getWindowHeight(), GL_RGBA, GL_RGBA16F, GL_FLOAT);
-	m_gBuff->initColourTexture(3, getWindowWidth(), getWindowHeight(), GL_RGBA, GL_RGBA16F, GL_FLOAT);
-	m_gBuff->initColourTexture(4, getWindowWidth(), getWindowHeight(), GL_RGB, GL_RGB8);
-	m_gBuff->initColourTexture(5, getWindowWidth(), getWindowHeight(), GL_RGBA, GL_RGBA8);
-	m_gBuff->initColourTexture(6, getWindowWidth(), getWindowHeight(), GL_RED_INTEGER, GL_R32UI, GL_UNSIGNED_INT, GL_NEAREST);
-	if(!m_gBuff->checkFBO())
+	m_postBuffer->initColourTexture(0, getWindowWidth(), getWindowHeight());
+	m_postBuffer->initDepthTexture(getWindowWidth(), getWindowHeight());
+	if(!m_postBuffer->checkFBO())
 	{
 		puts("FBO failed Creation");
 		system("pause");
 		return;
 	}
 
-	m_postBuffer->initDepthTexture(getWindowWidth(), getWindowHeight());
-	m_postBuffer->initColourTexture(0, getWindowWidth(), getWindowHeight());
-	if(!m_postBuffer->checkFBO())
+	m_gBuff = new FrameBuffer(7, "Main Buffer");
+
+
+	m_gBuff->initColourTexture(0, getWindowWidth(), getWindowHeight(), GL_RGBA, GL_RGBA16F, GL_FLOAT);//this buffer is broken for some reason
+	m_gBuff->initColourTexture(1, getWindowWidth(), getWindowHeight(), GL_RGBA, GL_RGBA16F, GL_FLOAT);
+	m_gBuff->initColourTexture(2, getWindowWidth(), getWindowHeight(), GL_RGBA, GL_RGBA16F, GL_FLOAT);
+	m_gBuff->initColourTexture(3, getWindowWidth(), getWindowHeight(), GL_RGBA, GL_RGBA16F, GL_FLOAT);
+	m_gBuff->initColourTexture(4, getWindowWidth(), getWindowHeight(), GL_RGB, GL_RGB8);
+	m_gBuff->initColourTexture(5, getWindowWidth(), getWindowHeight(), GL_RGBA, GL_RGBA8);
+	m_gBuff->initColourTexture(6, getWindowWidth(), getWindowHeight(), GL_RED_INTEGER, GL_R32UI, GL_UNSIGNED_INT, GL_NEAREST);
+	m_gBuff->initDepthTexture(getWindowWidth(), getWindowHeight());
+	if(!m_gBuff->checkFBO())
 	{
 		puts("FBO failed Creation");
 		system("pause");
@@ -181,7 +181,7 @@ void GameEmGine::run()
 			glClear(GL_DEPTH_BUFFER_BIT);
 
 			static Text fps;
-			static OrthoPeramiters ortho{0,(float)getWindowWidth(),(float)getWindowHeight(),0,0,500};
+			static OrthoPeramiters ortho{ 0, (float)getWindowWidth(), (float)getWindowHeight(), 0, 0, 500 };
 			static Camera cam(&ortho);
 			cam.update();
 
@@ -334,7 +334,7 @@ void GameEmGine::setScene(Scene* scene)
 
 void GameEmGine::setBackgroundColour(GLfloat r, GLfloat g, GLfloat b, GLfloat a)
 {
-	m_colour = {GLubyte(r * 255),GLubyte(g * 255),GLubyte(b * 255),GLubyte(a * 255)};
+	m_colour = {GLubyte(r * 255), GLubyte(g * 255), GLubyte(b * 255), GLubyte(a * 255)};
 }
 
 int GameEmGine::getWindowWidth()
@@ -465,9 +465,10 @@ void GameEmGine::update()
 
 	m_gBuff->clear();//colour buffer must be black
 	m_gBuff->clearSingleColour(m_colour, 4);//this is the colour buffer
-	//m_gBuff->clearSingleColour({0,0,0,0}, 6);//this is the ID buffer
+	m_gBuff->clearSingleColour({0, 0, 0, 0}, 6);//this is the ID buffer
 
 	m_postBuffer->clear(NULL, m_colour);
+	m_postBuffer->clear(NULL);
 
 	m_mainCamera->update();
 
@@ -527,7 +528,6 @@ void GameEmGine::update()
 	glEnable(GL_DEPTH_TEST);
 
 
-
 	//m_postProcessShader->disable();
 	m_postBuffer->disable();
 
@@ -538,7 +538,8 @@ void GameEmGine::update()
 #pragma endregion
 
 
-	static Shader* composite = ResourceManager::getShader("Shaders/Passthrough.vtsh", "Shaders/BloomComposite.fmsh");
+
+	static Shader* composite = ResourceManager::getShader("Shaders/Main Buffer.vtsh", "Shaders/BloomComposite.fmsh");
 
 	//store data for later post process
 	m_postBuffer->enable();
@@ -559,7 +560,9 @@ void GameEmGine::update()
 	m_postBuffer->disable();
 
 	//Apply shadows
-	LightManager::shadowRender(500, 500, 500, m_postBuffer, m_gBuff, m_models);
+	LightManager::setGBuffer(m_gBuff);
+	LightManager::setCamera(m_mainCamera);
+	LightManager::shadowRender(1820, 980, 50, m_postBuffer, m_models);
 
 
 	m_postBuffer->setViewport(0, 0, 0);
@@ -587,7 +590,7 @@ void GameEmGine::customRenderCallback(std::function<void(FrameBuffer*, FrameBuff
 void GameEmGine::changeViewport(GLFWwindow*, int w, int h)
 {
 	if(!(w && h))return;
-	m_screenSize = {w,h};
+	m_screenSize = {w, h};
 	glViewport(0, 0, w, h);
 
 	//	switch(m_mainCamera->getType())
@@ -616,20 +619,282 @@ void GameEmGine::changeViewport(GLFWwindow*, int w, int h)
 
 }
 
-#if FALSE
+
+#define TEST false
+#if TEST
 
 class Test :public Scene
 {
 	void onSceneExit() {}
-
-	void init()
+	//instance key is pressed
+	void keyInputPressed(int key, int modifier)
 	{
-		GameEmGine::addModel(new Model(new PrimitiveSphere(200, 200, 50, 20)));
+		modifier;
+		m_left = (key == 'A' ? true : m_left);
+		m_right = (key == 'D' ? true : m_right);
+		m_up = (key == 'E' ? true : m_up);
+		m_down = (key == 'Q' ? true : m_down);
+		m_fwd = (key == 'W' ? true : m_fwd);
+		m_back = (key == 'S' ? true : m_back);
 
-		GameEmGine::getMainCamera()->translate(0, 0, -500);
+		rotLeft = (key == GLFW_KEY_LEFT ? true : rotLeft);
+		rotRight = (key == GLFW_KEY_RIGHT ? true : rotRight);
+		rotUp = (key == GLFW_KEY_UP ? true : rotUp);
+		rotDown = (key == GLFW_KEY_DOWN ? true : rotDown);
+
+		//printf("key PRESSED code: %d\n\n", key);
 	}
 
-	void update(double dt) { dt; }
+	ColourRGBA lastColour;
+
+	//instance key is released
+	void keyInputReleased(int key, int modifier)
+	{
+		modifier;
+		m_left = (key == 'A' ? false : m_left);
+		m_right = (key == 'D' ? false : m_right);
+		m_fwd = (key == 'W' ? false : m_fwd);
+		m_back = (key == 'S' ? false : m_back);
+		m_up = (key == 'E' ? false : m_up);
+		m_down = (key == 'Q' ? false : m_down);
+
+		puts(GameEmGine::getMainCamera()->getLocalPosition().toString());
+
+		rotLeft = (key == GLFW_KEY_LEFT ? false : rotLeft);
+		rotRight = (key == GLFW_KEY_RIGHT ? false : rotRight);
+		rotUp = (key == GLFW_KEY_UP ? false : rotUp);
+		rotDown = (key == GLFW_KEY_DOWN ? false : rotDown);
+
+		if(key == GLFW_KEY_TAB)
+			++(*(char*)&currentState) %= (int)CONTROL_STATE::COUNT;//don't ask
+
+		switch(currentState)
+		{
+		case CONTROL_STATE::CAMERA:
+			//	modeStr = "Camera";
+			break;
+		case CONTROL_STATE::LEVEL:
+			//	modeStr = "Level Editing";
+			break;
+		}
+
+		//changes fps limit
+		if(key == GLFW_KEY_KP_6)
+			GameEmGine::setFPSLimit(util::clamp<short>(0, 60, GameEmGine::getFPSLimit() + 5));
+		if(key == GLFW_KEY_KP_4)
+			GameEmGine::setFPSLimit(util::clamp<short>(0, 60, GameEmGine::getFPSLimit() - 5));
+
+		if(key == GLFW_KEY_F) //Toggles Full-screen
+		{
+			static bool full;
+			GameEmGine::getWindow()->setFullScreen(full = !full);
+			printf("Full Screen: %s\n", full ? "true" : "false");
+		}
+
+		if(key == GLFW_KEY_SPACE) //Changes the camera mode
+		{
+			static Camera::CAM_TYPE type = Camera::FRUSTUM;
+			GameEmGine::setCameraType(type = type == Camera::ORTHOGRAPHIC ? Camera::FRUSTUM : Camera::ORTHOGRAPHIC);
+		}
+
+		if(key == GLFW_KEY_F5) //refreshes the shaders
+			Shader::refresh();
+
+		puts(GameEmGine::getMainCamera()->getLocalPosition().toString());
+
+		//if(key == GLFW_KEY_Q)
+		//	GameEmGine::lutActive = (GameEmGine::lutActive == false) ? true : false;
+		//if(key == GLFW_KEY_T)
+		//	GameEmGine::toonActive = (GameEmGine::toonActive == false) ? true : false;
+		//if(key == 'R')
+		//	GameEmGine::setCameraRotation({0,0,0});
+
+		//printf("key RELEASED code: %d\n\n", key);
+	}
+
+
+	void objectMovement(double dt)
+	{
+		float moveSpd = 30 * (float)dt;
+		moveSpd;
+		if(m_left)
+			switch(currentState)
+			{
+			case CONTROL_STATE::GAME:
+				break;
+			case CONTROL_STATE::LEVEL:
+				GameEmGine::getMainCamera()->enableFPSMode(false); if(!tmod)return;
+				tmod->translateBy(-moveSpd, 0, 0);
+				break;
+			case CONTROL_STATE::CAMERA:
+				GameEmGine::getMainCamera()->enableFPSMode();
+				GameEmGine::getMainCamera()->translateBy(-moveSpd, 0, 0);
+				break;
+			}
+		if(m_right)
+			switch(currentState)
+			{
+			case CONTROL_STATE::GAME:
+				break;
+			case CONTROL_STATE::LEVEL:
+				GameEmGine::getMainCamera()->enableFPSMode(false); if(!tmod)return;
+				tmod->translateBy(moveSpd, 0, 0);
+				break;
+			case CONTROL_STATE::CAMERA:
+				GameEmGine::getMainCamera()->enableFPSMode();
+				GameEmGine::getMainCamera()->translateBy(moveSpd, 0, 0);
+				break;
+			}
+		if(m_fwd)
+			switch(currentState)
+			{
+			case CONTROL_STATE::GAME:
+				break;
+			case CONTROL_STATE::LEVEL:
+				GameEmGine::getMainCamera()->enableFPSMode(false); if(!tmod)return;
+				tmod->translateBy(0, 0, moveSpd);
+				break;
+			case CONTROL_STATE::CAMERA:
+				GameEmGine::getMainCamera()->enableFPSMode();
+				GameEmGine::getMainCamera()->translateBy(0, 0, moveSpd);
+				break;
+			}
+		if(m_back)
+			switch(currentState)
+			{
+			case CONTROL_STATE::GAME:
+				break;
+			case CONTROL_STATE::LEVEL:
+				GameEmGine::getMainCamera()->enableFPSMode(false); if(!tmod)return;
+				tmod->translateBy(0, 0, -moveSpd);
+				break;
+			case CONTROL_STATE::CAMERA:
+				GameEmGine::getMainCamera()->enableFPSMode();
+				GameEmGine::getMainCamera()->translateBy(0, 0, -moveSpd);
+				break;
+			}
+		if(m_up)
+			switch(currentState)
+			{
+			case CONTROL_STATE::GAME:
+				break;
+			case CONTROL_STATE::LEVEL:
+				GameEmGine::getMainCamera()->enableFPSMode(false); if(!tmod)return;
+				tmod->translateBy(0, moveSpd, 0);
+				break;
+			case CONTROL_STATE::CAMERA:
+				GameEmGine::getMainCamera()->enableFPSMode();
+				GameEmGine::getMainCamera()->translateBy(0, moveSpd, 0);
+				break;
+			}
+		if(m_down)
+			switch(currentState)
+			{
+			case CONTROL_STATE::GAME:
+				break;
+			case CONTROL_STATE::LEVEL:
+				GameEmGine::getMainCamera()->enableFPSMode(false); if(!tmod)return;
+				tmod->translateBy(0, -moveSpd, 0);
+				break;
+			case CONTROL_STATE::CAMERA:
+				GameEmGine::getMainCamera()->enableFPSMode();
+				GameEmGine::getMainCamera()->translateBy(0, -moveSpd, 0);
+				break;
+			}
+
+		if(rotLeft)
+			switch(currentState)
+			{
+			case CONTROL_STATE::GAME:
+				break;
+			case CONTROL_STATE::LEVEL:
+				GameEmGine::getMainCamera()->enableFPSMode(false); if(!tmod)return;
+				tmod->rotateBy(0, -moveSpd, 0);
+				break;
+			case CONTROL_STATE::CAMERA:
+				GameEmGine::getMainCamera()->enableFPSMode();
+				GameEmGine::getMainCamera()->rotateBy(0, -moveSpd, 0);
+				break;
+			}
+		if(rotRight)
+			switch(currentState)
+			{
+			case CONTROL_STATE::GAME:
+				break;
+			case CONTROL_STATE::LEVEL:
+				GameEmGine::getMainCamera()->enableFPSMode(false); if(!tmod)return;
+				tmod->rotateBy(0, moveSpd, 0);
+				break;
+			case CONTROL_STATE::CAMERA:
+				GameEmGine::getMainCamera()->enableFPSMode();
+				GameEmGine::getMainCamera()->rotateBy(0, moveSpd, 0);
+				break;
+			}
+		if(rotUp)
+			switch(currentState)
+			{
+			case CONTROL_STATE::GAME:
+				break;
+			case CONTROL_STATE::LEVEL:
+				//this is correct
+				GameEmGine::getMainCamera()->enableFPSMode(false); if(!tmod)return;
+				tmod->rotateBy(moveSpd, 0, 0);
+				break;
+			case CONTROL_STATE::CAMERA:
+				//this is correct
+				GameEmGine::getMainCamera()->enableFPSMode();
+				GameEmGine::getMainCamera()->rotateBy(moveSpd, 0, 0);
+				break;
+			}
+		if(rotDown)
+			switch(currentState)
+			{
+			case CONTROL_STATE::GAME:
+				break;
+			case CONTROL_STATE::LEVEL:
+				GameEmGine::getMainCamera()->enableFPSMode(false); if(!tmod)return;
+				tmod->rotateBy(-moveSpd, 0, 0);
+				break;
+			case CONTROL_STATE::CAMERA:
+				GameEmGine::getMainCamera()->enableFPSMode();
+				GameEmGine::getMainCamera()->rotateBy(-moveSpd, 0, 0);
+				break;
+			}
+
+
+	}
+	void init()
+	{
+		GameEmGine::addModel(tmod = new Model(new PrimitiveSphere(200, 200, 50, 20, {0, 100, 0})));
+		tmod->setColour(1, 0, 0);
+		GameEmGine::addModel(tmod2 = new Model(new PrimitivePlane(1000, 0, 1000)));
+		tmod2->setColour(.1f, .1f, .1f);
+		GameEmGine::getMainCamera()->translate(0, 0, -500);
+
+		static Light light;
+		light.setLightType(Light::TYPE::DIRECTIONAL);
+		light.rotate({-45});
+		LightManager::addLight(&light);
+
+		keyPressed = [&](int a, int b) { keyInputPressed(a, b); };
+		keyReleased = [&](int a, int b) { keyInputReleased(a, b); };
+
+	}
+
+	void update(double dt) { objectMovement(dt); }
+
+	Model* tmod = nullptr, * tmod2 = nullptr;
+	bool m_left = 0, m_right = 0, m_fwd = 0, m_back = 0, m_up = 0, m_down = 0,
+		rotLeft = 0, rotRight = 0, rotUp = 0, rotDown = 0;
+	enum class CONTROL_STATE :char
+	{
+		CAMERA,
+		LEVEL,
+		GAME,
+
+		COUNT,
+	}currentState = CONTROL_STATE::CAMERA;
+
 };
 
 int main()
@@ -643,4 +908,4 @@ int main()
 
 	return 0;
 }
-#endif // FALSE
+#endif // TEST

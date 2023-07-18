@@ -30,12 +30,18 @@ FrameBuffer::~FrameBuffer()
 
 void FrameBuffer::initColourTexture(unsigned index, unsigned width, unsigned height, GLint internalFormat, GLint format, GLint formatType, GLint filter, GLint wrap)
 {
-	if(m_colorAttachments[index].id)return;
 
 	glBindFramebuffer(GL_FRAMEBUFFER, m_fboID);
 	//create colour texture
-	glGenTextures(1, &m_colorAttachments[index].id);
+	if(!m_colorAttachments[index].id)
+		glGenTextures(1, &m_colorAttachments[index].id);
 	glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
+
+	if(!m_colorAttachments[index].id)
+	{
+		puts("there is no ID for this colour attachment!");
+		return;
+	}
 
 	resizeColour(index, width, height, internalFormat, format, formatType, filter, wrap);
 
@@ -144,7 +150,7 @@ void FrameBuffer::resizeDepth(unsigned width, unsigned height)
 bool FrameBuffer::checkFBO()
 {
 	int lastID = 0;
-	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &lastID);
+	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &lastID);//get last used framebuffer ID
 	glBindFramebuffer(GL_FRAMEBUFFER, m_fboID);
 
 	GLenum error = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -210,8 +216,8 @@ void FrameBuffer::setClearColour(GLclampf r, GLclampf g, GLclampf b, GLclampf a)
 	glClearColor(r, g, b, a);//BG colour
 }
 
-// Clears all attached textures
-void FrameBuffer::clear(GLbitfield clearBit,ColourRGBA colour)
+// Clears all attached textures. Clearing also disables the current buffer 
+void FrameBuffer::clear(GLbitfield clearBit, ColourRGBA colour)
 {
 	GLbitfield temp = 0;
 
@@ -378,21 +384,21 @@ void FrameBuffer::initFullScreenQuad()
 
 	float vboData[] =
 	{
-		-1.0f,-1.0f,0.0f,
-		 1.0f,-1.0f,0.0f,
-		-1.0f, 1.0f,0.0f,
+		-1.0f, -1.0f, 0.0f,
+		1.0f, -1.0f, 0.0f,
+		-1.0f, 1.0f, 0.0f,
 
-		 1.0f, 1.0f,0.0f,
-		-1.0f, 1.0f,0.0f,
-		 1.0f,-1.0f,0.0f,
+		1.0f, 1.0f, 0.0f,
+		-1.0f, 1.0f, 0.0f,
+		1.0f, -1.0f, 0.0f,
 
-		0.0f,0.0f,
-		1.0f,0.0f,
-		0.0f,1.0f,
+		0.0f, 0.0f,
+		1.0f, 0.0f,
+		0.0f, 1.0f,
 
-		1.0f,1.0f,
-		0.0f,1.0f,
-		1.0f,0.0f
+		1.0f, 1.0f,
+		0.0f, 1.0f,
+		1.0f, 0.0f
 	};
 
 	if(!m_fsQuadVAO_ID)

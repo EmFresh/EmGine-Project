@@ -132,7 +132,10 @@ bool MeshLoader::load(string path, string binPath)
 					if(strcmp(str, a.first.c_str()) == 0)
 					{
 						auto& tmp = a.second;//refernce original
-						((vector<Texture2D>)m_meshes.back()->getTextures()).insert(m_meshes.back()->getTextures().end(), tmp.begin(), tmp.end());
+
+						for(auto& b : tmp)
+							((vector<Texture2D>)m_meshes.back()->getTextures()).push_back(b);
+						//((vector<Texture2D>)m_meshes.back()->getTextures()).insert(m_meshes.back()->getTextures().end(), tmp.begin(), tmp.end());
 						((vector<Texture2D>)m_meshes.back()->getReplaceTextures()).resize(m_meshes.back()->getTextures().size());
 					}
 

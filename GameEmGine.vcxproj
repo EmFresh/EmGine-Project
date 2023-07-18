@@ -29,28 +29,28 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -116,8 +116,8 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <DisableSpecificWarnings>4201;4505;</DisableSpecificWarnings>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <DisableSpecificWarnings>4201;4505;4706;</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <EnablePREfast>false</EnablePREfast>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <BrowseInformation>true</BrowseInformation>
@@ -144,8 +144,8 @@
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <DisableSpecificWarnings>4201;4505;</DisableSpecificWarnings>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <DisableSpecificWarnings>4201;4505;4706;</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <EnablePREfast>false</EnablePREfast>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
@@ -169,8 +169,8 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <DisableSpecificWarnings>4201;4505;</DisableSpecificWarnings>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <DisableSpecificWarnings>4201;4505;4706;</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <EnablePREfast>false</EnablePREfast>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
@@ -196,9 +196,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <DisableSpecificWarnings>4201;4505;</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4201;4505;4706;</DisableSpecificWarnings>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <EnablePREfast>false</EnablePREfast>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
@@ -273,6 +273,16 @@
     <ClCompile Include="include/Transformer.cpp" />
     <ClCompile Include="include/WindowCreator.cpp" />
     <ClCompile Include="include/XinputManager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DLLS (include contents in project directory)\assimp-vc140-mt.dll" />
+    <None Include="DLLS (include contents in project directory)\fmod.dll" />
+    <None Include="DLLS (include contents in project directory)\fmod64.dll" />
+    <None Include="DLLS (include contents in project directory)\freetype.dll" />
+    <None Include="DLLS (include contents in project directory)\freetype_win32.dll" />
+    <None Include="DLLS (include contents in project directory)\freetype_win64.dll" />
+    <None Include="DLLS (include contents in project directory)\glew32.dll" />
+    <None Include="DLLS (include contents in project directory)\glfw3.dll" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

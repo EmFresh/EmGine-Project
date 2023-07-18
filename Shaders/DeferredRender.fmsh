@@ -32,13 +32,14 @@ void main()
    
     
     outColour = colourMod; 
+    vec4 textureColour = vec4(1);
     if(textured)
     {       
-        vec4 textureColour = texture(uTex, texcoord);
-        outColour          = textureColour;
-        outColour         *= colourMod;
+        textureColour = texture(uTex, texcoord);
+        outColour     = textureColour;
+        outColour    *= colourMod;
     }
 
     outColour.rgb *= darken ? outColour.rgb * 1.2 : vec3(1, 1, 1);
-    outColour.a = isTrans ? outColour.a : 1 ;   
+    //outColour.a =  textureColour.a  ;      
 }

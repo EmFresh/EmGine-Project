@@ -45,7 +45,7 @@ private:
 	//std::vector<std::vector<std::vector<Vertex3D>>> m_unpackedData;
 
 	bool init = false;
-	float m_speed, m_lastTime, m_time;
-	unsigned m_frame = 0, m_frameNext;
+	float m_speed=0, m_lastTime=0, m_time=0;
+	unsigned m_frame = 0, m_frameNext=0;
 };
 

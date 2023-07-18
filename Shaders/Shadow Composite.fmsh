@@ -1,20 +1,20 @@
 #version 420
 
 uniform sampler2D uScene;
-uniform sampler2D uPosition;
+uniform sampler2D uPositionOP;
 uniform sampler2D uNormOP;
 uniform sampler2D uShadow; 
 uniform mat4 uLightViewProj;
 uniform vec4 uLightDirection;
 uniform bool uShadowEnable = true;
-uniform float uOpacity = .5;
+uniform float uOpacity = 0.5;
 
 in vec2 texcoord;
 out vec4 outColour;
 
 float calculateShadow()
 {
-    vec4 fragPosLightSpace = uLightViewProj * texture(uPosition, texcoord);
+    vec4 fragPosLightSpace = uLightViewProj * texture(uPositionOP, texcoord);
 
     vec3 projCoord = fragPosLightSpace.xyz / fragPosLightSpace.w;
     projCoord = projCoord * 0.5 + 0.5;
@@ -28,10 +28,10 @@ float calculateShadow()
     if(
         projCoord.x >= 1||
         projCoord.y >= 1||
-        !bool(length(texture(uPosition, texcoord).xyz))||
-        texture(uShadow,projCoord.xy).r==1
+        !bool(length(texture(uPositionOP, texcoord).xyz))||
+        texture(uShadow,projCoord.xy).r == 1
     ) 
-    return 1;//errors occur 
+    return 1;//errors occur otherwise
 
     for(int x = -1; x <= 1; ++x)
         for(int y = -1; y <= 1; ++y)
@@ -48,8 +48,8 @@ void main()
 {
     float shadow = calculateShadow();
     vec3 colourA = texture(uScene,texcoord).rgb;
-    vec3 colourB = vec3(shadow) * int(uShadowEnable);
+    vec3 colourB =clamp(vec3(shadow) , 0, 1);
 
-    outColour.rgb = colourA * colourB;
+    outColour.rgb =  /* colourA *  colourB */texture(uPositionOP,texcoord).rgb;
     outColour.a = 1.0;
 }

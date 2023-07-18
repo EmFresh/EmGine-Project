@@ -99,14 +99,14 @@ public:
 	static void enableLights(bool);
 
 	/// <summary>
-	/// Renders shadows to specified buffer. Resets the viewport to window size once complete
+	/// Renders shadows to specified buffer. Resets the viewport to window size once complete. 
+	/// Note you must set the G-buffer and Camera using LightManager::setGBuffer() / LightManager::setCamera()
 	/// </summary>
 	/// <param name="w:">Width</param>
 	/// <param name="h:">Height</param>
-	/// <param name="to:">framebuffer that gets draw info</param>
-	/// <param name="gBuffer:">used </param>
+	/// <param name="to:">framebuffer that gets draw info. Draws to location 0</param>
 	/// <param name=""></param>
-	static void shadowRender(unsigned w, unsigned h, float distance, FrameBuffer* to, const FrameBuffer* gBuffer, const std::unordered_map<void*, Model*>&);
+	static void shadowRender(unsigned w, unsigned h, float distance, FrameBuffer* to,  const std::unordered_map<void*, Model*>&);
 	static FrameBuffer* getShadowBuffer();
 
 	//Updates and renders each light

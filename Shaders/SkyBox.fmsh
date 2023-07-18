@@ -8,6 +8,6 @@ layout(location = 4)out vec4 frag;
 
 void main()
 {
-    frag = texture(sky, texCoord);
+    frag = texture(sky, normalize(texCoord));
     //frag.a = 1;
 }
