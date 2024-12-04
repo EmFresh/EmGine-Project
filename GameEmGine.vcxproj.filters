@@ -37,7 +37,7 @@
       <Filter>EmGine\Resource Management</Filter>
     </ClInclude>
     <ClInclude Include="include/Matrix.h">
-      <Filter>EmGine\Data Types</Filter>
+      <Filter>EmGine\Utility</Filter>
     </ClInclude>
     <ClInclude Include="include/Mesh.h">
       <Filter>EmGine\Game Engine</Filter>
@@ -49,7 +49,7 @@
       <Filter>EmGine\Game Engine</Filter>
     </ClInclude>
     <ClInclude Include="include/Quat.h">
-      <Filter>EmGine\Data Types</Filter>
+      <Filter>EmGine\Utility</Filter>
     </ClInclude>
     <ClInclude Include="include/ResourceManager.h">
       <Filter>EmGine\Resource Management</Filter>
@@ -73,7 +73,7 @@
       <Filter>EmGine\Game Engine</Filter>
     </ClInclude>
     <ClInclude Include="include/Utilities.h">
-      <Filter>EmGine\Data Types</Filter>
+      <Filter>EmGine\Utility</Filter>
     </ClInclude>
     <ClInclude Include="include/Text.h">
       <Filter>EmGine\Text Rendering</Filter>
@@ -85,7 +85,7 @@
       <Filter>EmGine\Game Engine</Filter>
     </ClInclude>
     <ClInclude Include="include/Texture.h">
-      <Filter>EmGine\Data Types</Filter>
+      <Filter>EmGine\Utility</Filter>
     </ClInclude>
     <ClInclude Include="include/Transformer.h">
       <Filter>EmGine\Game Engine</Filter>
@@ -127,7 +127,7 @@
       <Filter>EmGine\Resource Management</Filter>
     </ClCompile>
     <ClCompile Include="include/Matrix.cpp">
-      <Filter>EmGine\Data Types</Filter>
+      <Filter>EmGine\Utility</Filter>
     </ClCompile>
     <ClCompile Include="include/Mesh.cpp">
       <Filter>EmGine\Game Engine</Filter>
@@ -139,7 +139,7 @@
       <Filter>EmGine\Game Engine</Filter>
     </ClCompile>
     <ClCompile Include="include/Quat.cpp">
-      <Filter>EmGine\Data Types</Filter>
+      <Filter>EmGine\Utility</Filter>
     </ClCompile>
     <ClCompile Include="include/ResourceManager.cpp">
       <Filter>EmGine\Resource Management</Filter>
@@ -176,9 +176,6 @@
     <Filter Include="EmGine">
       <UniqueIdentifier>{e3d15f09-4f84-4b0e-90e3-93544f5ed174}</UniqueIdentifier>
     </Filter>
-    <Filter Include="EmGine\Data Types">
-      <UniqueIdentifier>{b1b8bd2d-c9ef-4312-be31-a4f627fc7025}</UniqueIdentifier>
-    </Filter>
     <Filter Include="EmGine\Game Engine">
       <UniqueIdentifier>{e37a305d-43c9-4ff3-9f29-417020fa4b78}</UniqueIdentifier>
     </Filter>
@@ -200,6 +197,9 @@
     <Filter Include="DLLs">
       <UniqueIdentifier>{6cc60c30-97ac-485c-9246-e468dada0675}</UniqueIdentifier>
       <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="EmGine\Utility">
+      <UniqueIdentifier>{b1b8bd2d-c9ef-4312-be31-a4f627fc7025}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

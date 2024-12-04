@@ -28,9 +28,11 @@ m_mouseButtonAll;
 void InputManager::init()
 {
 	glfwInit();
-	glfwSetKeyCallback(glfwGetCurrentContext(), keyUpdate);
-	glfwSetMouseButtonCallback(glfwGetCurrentContext(), mouseButtonUpdate);
+	glfwSetKeyCallback(glfwGetCurrentContext(),(GLFWkeyfun) keyUpdate);
+	glfwSetMouseButtonCallback(glfwGetCurrentContext(), (GLFWmousebuttonfun)mouseButtonUpdate);
 	glfwSetCursorPosCallback(glfwGetCurrentContext(), mousePositionUpdate);
+
+
 	//glfwSetJoystickCallback(xinputConnectionUpdate);
 }
 
@@ -44,7 +46,7 @@ void InputManager::mouseButtonReleasedCallback(std::function<void(int, int)>mous
 	m_mouseButtonRelease = mouseButton;
 }
 
-void InputManager::mouseButtonUpdate(GLFWwindow*, int button, int state, int mods)
+void InputManager::mouseButtonUpdate(GLFWwindow*, MouseButton button, MouseState state, MouseButton mods)
 {
 	if(m_mouseButtonAll != nullptr)
 		m_mouseButtonAll(state, button, mods);
@@ -66,17 +68,17 @@ void InputManager::mouseButtonUpdate(GLFWwindow*, int button, int state, int mod
 	}
 }
 
-void InputManager::mousePositionUpdate(GLFWwindow*, double x, double y)
-{
-	x, y;
+void InputManager::mousePositionUpdate(GLFWwindow* , double x, double y)
+{ 
+	m_mousePos = {(float)x, (float)y};
 }
 
-void InputManager::keyUpdate(GLFWwindow*, int key, int scancode, int state, int mods)
+void InputManager::keyUpdate(GLFWwindow*, wchar_t key, int scancode, KeyState state, wchar_t mods)
 {
 	scancode;
 	if(m_keyAll != nullptr)
 		m_keyAll(state, key, mods);
-
+ 
 	if(state == KEY_PRESSED)  //Key has been pressed initially
 	{
 		if(m_keyInitDown != nullptr)
@@ -194,9 +196,10 @@ void InputManager::controllerUpdate()
 void InputManager::update()
 {
 	controllerUpdate();
-	static double x, y;
-	glfwGetCursorPos(glfwGetCurrentContext(), &x, &y);
-	m_mousePos = {(float)x,(float)y};
+	
+	//static double x, y;
+	//glfwGetCursorPos(glfwGetCurrentContext(), &x, &y);
+	//m_mousePos = {(float)x, (float)y};
 
 	for(auto& a : m_mouseStroke)
 		a.second = false;

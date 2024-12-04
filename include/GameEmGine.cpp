@@ -49,6 +49,9 @@ GameEmGine::MessageCallback(GLenum source,
 	const GLchar* message,
 	const void* userParam)
 {
+
+	//GL_DEBUG_SEVERITY_HIGH;
+
 	source, id, length, userParam;
 	fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
 		(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
@@ -59,6 +62,17 @@ Texture3D GameEmGine::tmpLUT;
 Texture2D tmpRamp;
 std::string LUTpath;
 
+/// <summary>
+/// Initialize a new window
+/// </summary>
+/// <param name="name"></param>
+/// <param name="width"></param>
+/// <param name="height"></param>
+/// <param name="x"></param>
+/// <param name="y"></param>
+/// <param name="monitor"></param>
+/// <param name="fullScreen"></param>
+/// <param name="visable"></param>
 void GameEmGine::init(std::string name, int width, int height, int x, int y, int monitor, bool fullScreen, bool visable)
 {
 	createNewWindow(name, width, height, x, y, monitor, fullScreen, visable);
@@ -178,27 +192,30 @@ void GameEmGine::run()
 			char str[20];
 			sprintf_s(str, "fps: %.2f", m_fps);
 
-			glClear(GL_DEPTH_BUFFER_BIT);
+			//glClear(GL_DEPTH_BUFFER_BIT);
+			//
+			//static Text fps;
+			//static OrthoPeramiters ortho{ 0, (float)getWindowWidth(), (float)getWindowHeight(), 0, 0, 500 };
+			//static Camera cam(&ortho);
+			//cam.update();
+			//
+			//fps.setColour(1, 0, 0);
+			//fps.setText(str);
+			//fps.setTextSize(35);
+			//
+			//fps.translate(0, fps.getHeight(), 0);
+			//fps.rotate(180, 0, 0);
+			//
+			//
+			//glClearDepth(1.f);
+			//glClear(GL_DEPTH_BUFFER_BIT);
+			//fps.render(&cam);
 
-			static Text fps;
-			static OrthoPeramiters ortho{ 0, (float)getWindowWidth(), (float)getWindowHeight(), 0, 0, 500 };
-			static Camera cam(&ortho);
-			cam.update();
-
-			fps.setColour(1, 0, 0);
-			fps.setText(str);
-			fps.setTextSize(35);
-
-			fps.translate(0, fps.getHeight(), 0);
-			fps.rotate(180, 0, 0);
-
-
-			glClearDepth(1.f);
-			glClear(GL_DEPTH_BUFFER_BIT);
-			fps.render(&cam);
-
-			//glfwSetWindowTitle(m_window->getWindow(), (m_window->getTitle() + "--> " + str).c_str());
+			WindowCreator::setTitle((m_window->getTitle() + "--> " + str).c_str());
 		}
+
+		m_window->getTitle();
+
 
 		glfwSwapBuffers(m_window->getWindow());
 		glFlush();
@@ -365,7 +382,6 @@ bool GameEmGine::mouseCollision(Model* model)
 	return id->getID() == model->getID();
 }
 
-#include <cmath>
 Model* GameEmGine::getMouseCollisionObject()
 {
 
@@ -457,6 +473,9 @@ std::unordered_map<void*, Model*>& GameEmGine::getObjectList()
 
 void GameEmGine::update()
 {
+
+	if(m_gameLoop != nullptr)
+		m_gameLoop(glfwGetTime());
 
 	glClearDepth(1.f);
 
@@ -575,10 +594,6 @@ void GameEmGine::update()
 	m_postBuffer->copyColourToBackBuffer(getWindowWidth(), getWindowHeight());
 	m_postBuffer->copyDepthToBackBuffer(getWindowWidth(), getWindowHeight());
 
-
-
-	if(m_gameLoop != nullptr)
-		m_gameLoop(glfwGetTime());
 	glfwPollEvents();//updates the event handlers
 }
 
@@ -616,11 +631,10 @@ void GameEmGine::changeViewport(GLFWwindow*, int w, int h)
 
 	m_postBuffer->resizeDepth(w, h);
 	m_postBuffer->resizeColour(0, w, h);
-
 }
 
 
-#define TEST false
+//#define TEST FALSE
 #if TEST
 
 class Test :public Scene

@@ -38,12 +38,22 @@ namespace util
 		return dir;
 	}
 
-	static std::string tolower(char* dir)
+	static std::string tolower(std::string dir)
 	{
 		std::string tmp;
-		for(unsigned i = 0; i < strlen(dir); i++)
+		for(unsigned i = 0; i < dir.length(); i++)
 		{
-			tmp += (char)std::tolower(*(dir + i));
+			tmp += (char)std::tolower((dir[i]));
+		}
+		return tmp;
+	}
+
+	static std::wstring tolower(std::wstring dir)
+	{
+		std::wstring tmp;
+		for(unsigned i = 0; i < dir.length(); i++)
+		{
+			tmp += (wchar_t)std::tolower((dir[i]));
 		}
 		return tmp;
 	}
@@ -79,7 +89,7 @@ namespace util
 	/// <param name="t: ">Scaler</param>
 	/// <returns></returns>
 	template <typename T>
-	static inline T catmull(T p0, T p1, T p2, T p3, float t)
+	static inline T catmull(const T& p0, const T& p1, const T& p2, const T& p3, float t)
 	{
 		return 0.5f *
 			t * t * t * (-p0 + p1 * 3.0f + p2 * -3.0f + p3) +
@@ -102,6 +112,17 @@ namespace util
 	//?
 	static inline int vectorWrap(int num, int mod) { return (num + mod) % mod; }
 
+	static std::vector<std::string> splitString(std::string str, std::string split)
+	{
+		std::vector<std::string> tmp;
+		while(str.find(split) != std::string::npos)
+		{
+			tmp.push_back(str.substr(0, str.find(split) + 1));
+			str = str.substr(str.find(split) + 1);
+		}
+		tmp.push_back(str);
+		return tmp;
+	}
 
 	template<class T>
 	class ObjectPool
@@ -109,7 +130,7 @@ namespace util
 		uint capacity = 0;
 		uint count = 0;
 		uint current = 0;
-		std::vector<std::shared_ptr<T>> objects;
+		std::vector<std::unique_ptr<T>> objects;
 
 
 
@@ -164,13 +185,11 @@ namespace util
 		/// <returns></returns>
 		T& getCurrentObject() { return *objects[current]; }
 
-		void deleteObject(uint index) { objects.erase(objects.begin() + index); }
-		void deleteObject(T& index) { objects.erase(std::find(objects.begin(), objects.end(), index)); }
+		void inline deleteObject(uint index) { objects.erase(objects.begin() + index); }
+		void inline deleteObject(T& index) { objects.erase(std::find(objects.begin(), objects.end(), index)); }
 
-		std::vector<std::shared_ptr<T>>& getObjectList() { return objects; }
+		std::vector<std::unique_ptr<T>>& getObjectList() { return objects; }
 	};
-
-
 
 	template<class T = float>
 	struct Coord2D
@@ -270,11 +289,11 @@ namespace util
 
 		Coord2D operator/(Coord2D coord)
 		{
-			return {x / coord.x,y / coord.y};
+			return {x / coord.x, y / coord.y};
 		}
 		Coord2D operator/(T coord)
 		{
-			return {x / coord,y / coord};
+			return {x / coord, y / coord};
 		}
 		void operator-=(Coord2D coord)
 		{
@@ -342,7 +361,7 @@ namespace util
 		};
 
 
-		Coord3D():x(0), y(0), z(0) {};
+		Coord3D() :x(0), y(0), z(0) {};
 
 		Coord3D(Coord2D<T> coord)
 		{
@@ -400,7 +419,7 @@ namespace util
 
 		glm::vec3 tovec3()
 		{
-			return glm::vec3{x,y,z};
+			return glm::vec3{x, y, z};
 		}
 
 		static glm::vec3 tovec3(Coord3D<float> a0)
@@ -455,7 +474,7 @@ namespace util
 
 		friend static Coord3D<T> abs(Coord3D<T> val)
 		{
-			return {sqrtf(val.x * val.x),sqrtf(val.y * val.y),sqrtf(val.z * val.z)};
+			return {sqrtf(val.x * val.x), sqrtf(val.y * val.y), sqrtf(val.z * val.z)};
 		}
 
 
@@ -539,28 +558,28 @@ namespace util
 
 		Coord3D<T> operator/(Coord3D<T> coord)const
 		{
-			return {x / coord.x,y / coord.y,z / coord.z};
+			return {x / coord.x, y / coord.y, z / coord.z};
 		}
 
 		Coord3D<T> operator/(T coord)const
 		{
-			return {x / coord,y / coord,z / coord};
+			return {x / coord, y / coord, z / coord};
 		}
 		Coord3D<T> operator%(Coord3D<T> coord)const
 		{
 			return	{
-				(T)coord.x ? std::fmodf(x , coord.x) : 0,
-				(T)coord.y ? std::fmodf(y , coord.y) : 0,
-				(T)coord.z ? std::fmodf(z , coord.z) : 0
+				(T)coord.x ? std::fmodf(x, coord.x) : 0,
+				(T)coord.y ? std::fmodf(y, coord.y) : 0,
+				(T)coord.z ? std::fmodf(z, coord.z) : 0
 			};
 		}
 
 		Coord3D<T> operator%(T coord)const
 		{
 			return {
-				(T)coord ? std::fmodf(x , coord) : 0,
-				(T)coord ? std::fmodf(y , coord) : 0,
-				(T)coord ? std::fmodf(z , coord) : 0
+				(T)coord ? std::fmodf(x, coord) : 0,
+				(T)coord ? std::fmodf(y, coord) : 0,
+				(T)coord ? std::fmodf(z, coord) : 0
 			};
 		}
 
@@ -669,10 +688,10 @@ namespace util
 		//1/255 = 0.0039215686274509803921568627451
 	#define BYTE_TO_FLOAT_MULTI 0.0039215686274509803921568627451
 
-		ColourRGBA():r((GLubyte)255), g((GLubyte)255), b((GLubyte)255), a((GLubyte)255)
+		ColourRGBA() :r((GLubyte)255), g((GLubyte)255), b((GLubyte)255), a((GLubyte)255)
 		{}
 
-		ColourRGBA(GLubyte a_r, GLubyte a_g, GLubyte a_b, GLubyte a_a = (GLubyte)255):r(a_r), g(a_g), b(a_b), a(a_a)
+		ColourRGBA(GLubyte a_r, GLubyte a_g, GLubyte a_b, GLubyte a_a = (GLubyte)255) :r(a_r), g(a_g), b(a_b), a(a_a)
 		{}
 		glm::vec4 toVec4()
 		{
@@ -721,10 +740,10 @@ namespace util
 		glm::vec4 getf4()
 		{
 			glm::vec4 colour{
-		 float(r * BYTE_TO_FLOAT_MULTI),
-		 float(g * BYTE_TO_FLOAT_MULTI),
-		 float(b * BYTE_TO_FLOAT_MULTI),
-		 float(a * BYTE_TO_FLOAT_MULTI)};
+				float(r * BYTE_TO_FLOAT_MULTI),
+				float(g * BYTE_TO_FLOAT_MULTI),
+				float(b * BYTE_TO_FLOAT_MULTI),
+				float(a * BYTE_TO_FLOAT_MULTI)};
 			return colour;
 		}
 
@@ -933,48 +952,81 @@ namespace util
 		}
 	};
 
+	struct Index
+	{
+		uint index = 0;
+		Index() :index(0), m_correct(false)
+		{}
+		Index(uint val) :index(val), m_correct(false)
+		{}
+
+		Index(Index& val) : m_correct(false)
+		{
+			*this = val;
+		}
+
+		Index(const Index& val) : m_correct(false)
+		{
+			*this = val;
+		}
+
+
+		void correct()
+		{
+			if(m_correct)return;
+
+			--index;
+			m_correct = true;
+		}
+	private:
+		bool m_correct;
+	};
+
 	struct Indicie
 	{
-
-		unsigned coord = 0;
-		unsigned uv = 0;
-		unsigned norm = 0;
-
-		unsigned& operator[](int m_index)
+	
+		Index coord = 0;
+		Index uv = 0;
+		Index norm = 0;
+		 
+		Index& operator[](int m_index)
 		{
 			switch(m_index)
 			{
 			case 0:
-				return static_cast<unsigned&>(coord);
+				return static_cast<Index&>(coord);
 			case 1:
-				return static_cast<unsigned&>(uv);
+				return static_cast<Index&>(uv);
 			case 2:
-				return static_cast<unsigned&>(norm);
+				return static_cast<Index&>(norm);
 			}
-			unsigned* error = nullptr;
+
+			Index* error = nullptr;
 			return *error;
 		}
 
 		friend bool operator<(const Indicie& in1, const Indicie& in2)
 		{
-			return in1.coord < in2.coord;
+			return in1.coord.index < in2.coord.index;
 		}
 
 		bool operator==(Indicie in)
 		{
-			for(short i = 0; i < 3; ++i)
-				if((*this)[i] != in[i])
+			for(char i = 0; i < 3; ++i)
+				if((*this)[i].index != in[i].index)
 					return false;
-			return true;
 
+			return true;
 			//return (*this)[0] != in[0];
 		}
 
 		void correct()
 		{
-			coord -= 1;
-			norm -= 1;
-			uv -= 1;
+
+			coord.correct();
+			norm.correct();
+			uv.correct();
+
 		}
 	};
 

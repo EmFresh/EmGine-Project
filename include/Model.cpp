@@ -7,24 +7,23 @@
 using namespace util;
 
 
-Model::Model(Model& model, cstring tag):
+Model::Model(Model& model, cstring tag) :
+	Transformer(model, MODEL),
+	m_tag(tag)
+{
+	//glfwInit(); 
+	create(model, tag);
+}
+
+Model::Model(const Model& model, cstring tag) :
 	Transformer(model, MODEL),
 	m_tag(tag)
 {
 	//glfwInit();
-
 	create(model, tag);
 }
 
-Model::Model(const Model& model, cstring tag):
-	Transformer(model, MODEL),
-	m_tag(tag)
-{
-	//glfwInit();
-	create(model, tag);
-}
-
-Model::Model(PrimitiveMesh* mesh, cstring tag):
+Model::Model(PrimitiveMesh* mesh, cstring tag) :
 	Transformer(MODEL),
 	m_tag(tag)
 {
@@ -32,7 +31,7 @@ Model::Model(PrimitiveMesh* mesh, cstring tag):
 	create(mesh, tag);
 }
 
-Model::Model(cstring path, cstring tag):
+Model::Model(cstring path, cstring tag) :
 	Transformer(MODEL),
 	m_tag(tag)
 {
@@ -48,13 +47,25 @@ Model::~Model()
 
 }
 
+//Model& Model::operator=(const Model& mod)
+//{
+//	create(mod, mod.m_tag.c_str());
+//	return *this;
+//}
+//
+//Model& Model::operator=(Model& mod)
+//{
+//	create(mod, mod.m_tag.c_str());
+//	return *this;
+//}
+
 
 void Model::create(const Model& model, cstring tag)
 {
 	*this = model;
 	m_ID = createID();
 
-	m_tag = strlen(tag) ? tag : "";
+	m_tag = strlen(tag) ? tag : m_tag;
 
 	boundingBoxInit();
 	boundingBoxUpdate();
@@ -66,8 +77,9 @@ void Model::create(PrimitiveMesh* mesh, cstring tag)
 
 	m_meshes.clear();
 	m_meshes.push_back(std::shared_ptr<Mesh>(new Mesh()));
-	if(strlen(tag))
-		m_tag = tag;
+
+	m_tag = strlen(tag) ? tag : m_tag;
+
 	if(m_meshes.back()->loadPrimitive(mesh))
 	{
 		m_shaderBB = ResourceManager::getShader("Shaders/BoundingBox.vtsh", "Shaders/BoundingBox.fmsh");
@@ -91,14 +103,14 @@ void Model::create(PrimitiveMesh* mesh, cstring tag)
 		}
 
 
-		(m_bounds.m_topLeftBack = {left,top,back});
-		(m_bounds.m_topRightBack = {right,top,back});
-		(m_bounds.m_topLeftFront = {left,top,front});
-		(m_bounds.m_topRightFront = {right,top,front});
-		(m_bounds.m_bottomLeftBack = {left,bottom,back});
-		(m_bounds.m_bottomRightBack = {right,bottom,back});
-		(m_bounds.m_bottomLeftFront = {left,bottom,front});
-		(m_bounds.m_bottomRightFront = {right,bottom,front});
+		(m_bounds.m_topLeftBack = {left, top, back});
+		(m_bounds.m_topRightBack = {right, top, back});
+		(m_bounds.m_topLeftFront = {left, top, front});
+		(m_bounds.m_topRightFront = {right, top, front});
+		(m_bounds.m_bottomLeftBack = {left, bottom, back});
+		(m_bounds.m_bottomRightBack = {right, bottom, back});
+		(m_bounds.m_bottomLeftFront = {left, bottom, front});
+		(m_bounds.m_bottomRightFront = {right, bottom, front});
 
 
 		boundingBoxInit();
@@ -111,10 +123,9 @@ void Model::create(cstring path, cstring tag)
 	m_ID = createID();
 	m_meshes.clear();
 
-	if(strlen(tag))
-		m_tag = tag;
-	if(strlen(path))
-		m_path = m_path;
+	m_tag = strlen(tag) ? tag : m_tag;
+
+	m_path = strlen(path) ? path : m_path;
 
 	if(loadModel(path))
 	{
@@ -138,14 +149,14 @@ void Model::create(cstring path, cstring tag)
 				back = back > a->back.z ? a->back.z : back;
 		}
 
-		(m_bounds.m_topLeftBack = {left,top,back});
-		(m_bounds.m_topRightBack = {right,top,back});
-		(m_bounds.m_topLeftFront = {left,top,front});
-		(m_bounds.m_topRightFront = {right,top,front});
-		(m_bounds.m_bottomLeftBack = {left,bottom,back});
-		(m_bounds.m_bottomRightBack = {right,bottom,back});
-		(m_bounds.m_bottomLeftFront = {left,bottom,front});
-		(m_bounds.m_bottomRightFront = {right,bottom,front});
+		(m_bounds.m_topLeftBack = {left, top, back});
+		(m_bounds.m_topRightBack = {right, top, back});
+		(m_bounds.m_topLeftFront = {left, top, front});
+		(m_bounds.m_topRightFront = {right, top, front});
+		(m_bounds.m_bottomLeftBack = {left, bottom, back});
+		(m_bounds.m_bottomRightBack = {right, bottom, back});
+		(m_bounds.m_bottomLeftFront = {left, bottom, front});
+		(m_bounds.m_bottomRightFront = {right, bottom, front});
 
 		boundingBoxInit();
 		boundingBoxUpdate();
@@ -177,7 +188,7 @@ bool Model::collision2D(Model* box1, Model* box2, Vec3 RPos)
 	RPos = (Vec3{1, 1, 1} - RPos);
 
 	RPos = (box1->m_bounds.m_center - box2->m_bounds.m_center) * RPos;
-	Vec3 AxisX{1,0,0}, AxisY{0,1,0}, AxisZ{0,0,1};
+	Vec3 AxisX{1, 0, 0}, AxisY{0, 1, 0}, AxisZ{0, 0, 1};
 
 	glm::mat4
 		* rotLocal1 = (glm::mat4*)&box1->getLocalRotationMatrix(),
@@ -226,7 +237,7 @@ bool Model::collision3D(Model* box1, Model* box2)
 {
 	static Vec3 RPos;
 	RPos = box1->m_bounds.m_center - box2->m_bounds.m_center;
-	Vec3 AxisX{1,0,0}, AxisY{0,1,0}, AxisZ{0,0,1};
+	Vec3 AxisX{1, 0, 0}, AxisY{0, 1, 0}, AxisZ{0, 0, 1};
 
 	glm::mat4
 		* rotLocal1 = (glm::mat4*)&box1->getLocalRotationMatrix(),
@@ -266,7 +277,7 @@ bool Model::getSeparatingPlane(const Vec3& RPos, const Vec3& plane, Model& box1,
 {
 
 	//RPos;
-	Vec3 AxisX{1,0,0}, AxisY{0,1,0}, AxisZ{0,0,1};
+	Vec3 AxisX{1, 0, 0}, AxisY{0, 1, 0}, AxisZ{0, 0, 1};
 
 	glm::mat4
 		* trans1 = (glm::mat4*)&box1.getLocalRotationMatrix(),
@@ -284,7 +295,7 @@ bool Model::getSeparatingPlane(const Vec3& RPos, const Vec3& plane, Model& box1,
 	//glfwGetFramebufferSize(glfwGetCurrentContext(), &w, &h);
 
 	return (fabs(Vec3::dotProduct(RPos, plane)) >
-			(
+		(
 			fabs(Vec3::dotProduct((AxisX1 * (box1.m_bounds.m_dimentions.width / 2)), plane)) +
 			fabs(Vec3::dotProduct((AxisY1 * (box1.m_bounds.m_dimentions.height / 2)), plane)) +
 			fabs(Vec3::dotProduct((AxisZ1 * (box1.m_bounds.m_dimentions.depth / 2)), plane)) +
@@ -292,7 +303,7 @@ bool Model::getSeparatingPlane(const Vec3& RPos, const Vec3& plane, Model& box1,
 			fabs(Vec3::dotProduct((AxisX2 * (box2.m_bounds.m_dimentions.width / 2)), plane)) +
 			fabs(Vec3::dotProduct((AxisY2 * (box2.m_bounds.m_dimentions.height / 2)), plane)) +
 			fabs(Vec3::dotProduct((AxisZ2 * (box2.m_bounds.m_dimentions.depth / 2)), plane))
-			));
+		));
 }
 
 #include <thread>
@@ -300,14 +311,14 @@ void Model::render(Shader& shader, Camera* cam)
 {
 	if(!m_activators.m_active)return;
 
-	float colour[4]{(float)m_colour.r / 255,(float)m_colour.g / 255,(float)m_colour.b / 255,(float)m_colour.a / 255};
+	float colour[4]{(float)m_colour.r / 255, (float)m_colour.g / 255, (float)m_colour.b / 255, (float)m_colour.a / 255};
 	m_camera = cam;
 	m_shader = &shader;
 	shader.enable();
 
 	shader.sendUniform("uLocalModel", getLocalTransformation());
 	shader.sendUniform("uWorldModel", getWorldTransformation());
-	shader.sendUniform("colourMod",  m_colour.getf4());
+	shader.sendUniform("colourMod", m_colour.getf4());
 	shader.sendUniform("flip", true);
 	shader.sendUniform("colourID", m_ID);
 	shader.disable();
@@ -396,7 +407,7 @@ bool Model::loadModel(cstring path)
 {
 
 	m_meshes.clear();
-	m_meshes = MeshLoader::loadMesh(path);
+	m_meshes = MeshLoader::loadMesh(path,false);
 	return !!m_meshes.size();
 }
 
@@ -482,12 +493,12 @@ void Model::boundingBoxUpdate()
 
 	std::vector<glm::vec4> bounds =
 	{
-	{*(glm::vec3*)&m_bounds.m_bottomRightBack,1},
-	{*(glm::vec3*)&m_bounds.m_bottomLeftBack,1},
-	{*(glm::vec3*)&m_bounds.m_topLeftBack,1},
-	{*(glm::vec3*)&m_bounds.m_bottomLeftBack,1},
-	{*(glm::vec3*)&m_bounds.m_topLeftFront,1},
-	{*(glm::vec3*)&m_bounds.m_topLeftBack,1}
+		{*(glm::vec3*)&m_bounds.m_bottomRightBack, 1},
+		{*(glm::vec3*)&m_bounds.m_bottomLeftBack, 1},
+		{*(glm::vec3*)&m_bounds.m_topLeftBack, 1},
+		{*(glm::vec3*)&m_bounds.m_bottomLeftBack, 1},
+		{*(glm::vec3*)&m_bounds.m_topLeftFront, 1},
+		{*(glm::vec3*)&m_bounds.m_topLeftBack, 1}
 	};
 
 
@@ -502,12 +513,12 @@ void Model::boundingBoxUpdate()
 
 	bounds =
 	{
-	{*(glm::vec3*)&m_bounds.m_bottomRightBack,1},
-	{*(glm::vec3*)&m_bounds.m_bottomLeftBack,1},
-	{*(glm::vec3*)&m_bounds.m_topLeftBack,1},
-	{*(glm::vec3*)&m_bounds.m_bottomLeftBack,1},
-	{*(glm::vec3*)&m_bounds.m_topLeftFront,1},
-	{*(glm::vec3*)&m_bounds.m_topLeftBack,1}
+		{*(glm::vec3*)&m_bounds.m_bottomRightBack, 1},
+		{*(glm::vec3*)&m_bounds.m_bottomLeftBack, 1},
+		{*(glm::vec3*)&m_bounds.m_topLeftBack, 1},
+		{*(glm::vec3*)&m_bounds.m_bottomLeftBack, 1},
+		{*(glm::vec3*)&m_bounds.m_topLeftFront, 1},
+		{*(glm::vec3*)&m_bounds.m_topLeftBack, 1}
 	};
 
 
@@ -516,9 +527,9 @@ void Model::boundingBoxUpdate()
 
 	m_bounds.m_center =
 		(Vec3(
-		bounds[0].x + bounds[1].x,
-		bounds[2].y + bounds[3].y,
-		bounds[4].z + bounds[5].z) / 2);
+			bounds[0].x + bounds[1].x,
+			bounds[2].y + bounds[3].y,
+			bounds[4].z + bounds[5].z) / 2);
 }
 
 Animation* Model::getAnimation(cstring tag)
@@ -624,23 +635,23 @@ void Model::boundingBoxInit()
 
 	Vertex3D tmp[12 * 3]{
 		//top
-		topLeftBack,topRightBack,topRightFront,
-		topLeftBack,topRightFront,topLeftFront,
+		topLeftBack, topRightBack, topRightFront,
+		topLeftBack, topRightFront, topLeftFront,
 		//bottom
-		 bottomRightFront, bottomRightBack,bottomLeftBack,
-		bottomLeftFront,bottomRightFront,bottomLeftBack,
+		bottomRightFront, bottomRightBack, bottomLeftBack,
+		bottomLeftFront, bottomRightFront, bottomLeftBack,
 		//front
-		topLeftFront,topRightFront,bottomRightFront,
-		topLeftFront,bottomRightFront,bottomLeftFront,
+		topLeftFront, topRightFront, bottomRightFront,
+		topLeftFront, bottomRightFront, bottomLeftFront,
 		//back
 		bottomRightBack, topRightBack, topLeftBack,
 		bottomLeftBack, bottomRightBack, topLeftBack,
 		//left
-		topLeftBack,topLeftFront,bottomLeftFront,
-		topLeftBack,bottomLeftFront,bottomLeftBack,
+		topLeftBack, topLeftFront, bottomLeftFront,
+		topLeftBack, bottomLeftFront, bottomLeftBack,
 		//right
-		bottomRightFront,topRightFront,topRightBack,
-		bottomRightBack,bottomRightFront,topRightBack
+		bottomRightFront, topRightFront, topRightBack,
+		bottomRightBack, bottomRightFront, topRightBack
 	};
 
 	memcpy_s(m_bounds.m_vertBBDat, sizeof(Vertex3D) * 12 * 3, tmp, sizeof(Vertex3D) * 12 * 3);
@@ -675,7 +686,7 @@ void Model::print()
 		"Height: %f\n"
 		"Depth: %f\n"
 		"Center: (%f, %f, %f)\n\n"
-		, m_tag.c_str(),m_path.c_str(), m_bounds.m_dimentions.width, m_bounds.m_dimentions.height, m_bounds.m_dimentions.depth, m_bounds.m_center.x, m_bounds.m_center.y, m_bounds.m_center.z);
+		, m_tag.c_str(), m_path.c_str(), m_bounds.m_dimentions.width, m_bounds.m_dimentions.height, m_bounds.m_dimentions.depth, m_bounds.m_center.x, m_bounds.m_center.y, m_bounds.m_center.z);
 }
 
 std::vector<Vec3> Model::getBounds()

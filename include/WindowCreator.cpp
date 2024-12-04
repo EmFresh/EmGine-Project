@@ -115,6 +115,11 @@ void WindowCreator::setFullScreen(bool full)
 	m_full = full;
 }
 
+void WindowCreator::setTitle(std::string title)
+{
+	glfwSetWindowTitle(m_window, title.c_str());
+}
+
 GLFWwindow* WindowCreator::getWindow()
 {
 	return m_window;

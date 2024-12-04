@@ -68,7 +68,7 @@ void SkyBox::render()
 
 	glBindVertexArray(m_vaoID);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_eleID);
-
+	 
 	glDrawElements(
 		GL_TRIANGLES,//draw pattern
 		(GLsizei)m_box->getIndices().size(),//amout of indicies

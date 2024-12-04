@@ -21,12 +21,12 @@ struct Texture2D
 {
 	GLuint id = 0;
 	util::ColourRGBA colour;
-	util::Coord2D<int> size;
+	util::Vec2i size;
 	TEXTURE_TYPE2D type = TEXTURE_TYPE2D::NONE;
 
 	std::string name, path;
 
-	Texture2D() {}
+	Texture2D() = default;
 
 	//~Texture2D()
 	//{
@@ -97,13 +97,6 @@ struct Texture3D
 
 	}
 
-	//bind texture to whatever slot is specified
-	void bindTexture(GLuint slot)
-	{
-		glActiveTexture(GL_TEXTURE0 + slot);
-		bindTexture();
-	}
-
 	//bind texture to whatever slot is currently active
 	void bindTexture()
 	{
@@ -118,6 +111,13 @@ struct Texture3D
 		default:
 			puts("undefined type\n");
 		}
+	}
+
+	//bind texture to whatever slot is specified
+	void bindTexture(GLuint slot)
+	{
+		glActiveTexture(GL_TEXTURE0 + slot);
+		bindTexture();
 	}
 
 	static void bindTexture(GLuint slot, TEXTURE_TYPE3D type, GLuint id)

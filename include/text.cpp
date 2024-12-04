@@ -20,12 +20,12 @@ void Text::create(cstring font)
 	}
 }
 
-Text::Text():Transformer(TEXT)
+Text::Text() :Transformer(TEXT)
 {
 	create("fonts/arial.ttf");
 }
 
-Text::Text(Text& text):Transformer(TEXT) { *this = text; create(text.m_font); }
+Text::Text(Text& text) :Transformer(TEXT) { *this = text; create(text.m_font); }
 Text::Text(const Text& text) : Transformer(TEXT) { *this = text; create(text.m_font); }
 
 Text::Text(cstring font) : Transformer(TEXT)
@@ -49,13 +49,15 @@ std::string Text::getText()
 
 void Text::setTextSize(short s)
 {
-	scale(s * 0.020834f);// s / 48 = s * 0.020834f 
+	scale(s * 0.015625f);
+	// s / 64 = s * 0.015625f 
+	// s / 48 = s * 0.020833f
 	testSize();
 }
 
 void Text::setColour(float r, float g, float b, float a)
 {
-	m_colour = {GLubyte(r * 255),GLubyte(g * 255),GLubyte(b * 255),GLubyte(a * 255)};
+	m_colour = {GLubyte(r * 255), GLubyte(g * 255), GLubyte(b * 255), GLubyte(a * 255)};
 }
 
 void Text::setColour(ColourRGBA colour)
@@ -138,45 +140,64 @@ void Text::render(Camera* cam, Shader* sad, bool texture)
 
 	static Character ch;
 
+	int count = 0;
+	std::string tmpStr = m_text;
+	auto help = util::splitString(tmpStr, "\n");
 
-	// Iterate through all characters
-	for(auto& c : m_text)
+	for(auto a = help.rbegin(); a != help.rend(); a++)
 	{
-		ch = ResourceManager::getCharacter(c, m_font);
+		// Iterate through all characters
+		for(auto& c : *a)
+		{
 
-		xpos = (x + (float)ch.bearing.x * getScale().x);
-		ypos = texture ?
-			y + (((float(ch.size.y - ch.bearing.y)) * getScale().x) + ((m_initY - ch.size.y * getScale().x))) :
-			y - (float(ch.size.y - ch.bearing.y) * getScale().x);
+			ch = ResourceManager::getCharacter(c, m_font);
 
-		w = (float)ch.size.x * getScale().x;
-		h = (float)ch.size.y * getScale().x;
+			if(c == '\n')break;
 
-		// Update VBO for each character
-		GLfloat vertices[6][4] = {
-			{ xpos,     ypos + h,   0.0, 0.0f },//top left
-			{ xpos,     ypos,       0.0, 1.0f },//bottom left
-			{ xpos + w, ypos,       1.0, 1.0f },//bottom right
 
-			{ xpos,     ypos + h,   0.0, 0.0f },//top left
-			{ xpos + w, ypos,       1.0, 1.0f },//bottom right
-			{ xpos + w, ypos + h,   1.0, 0.0f } //top right
-		};
+			xpos = (x + (float)ch.bearing.x * getScale().x);
+			ypos = texture ?
+				y + (((float(ch.size.y - ch.bearing.y)) * getScale().x) + ((m_initY - ch.size.y * getScale().x))) :
+				y - (float(ch.size.y - ch.bearing.y) * getScale().x);
 
-		// Render glyph texture over quad
-		glBindTexture(GL_TEXTURE_2D, ch.textureID);
+			w = (float)ch.size.x * getScale().x;
+			h = (float)ch.size.y * getScale().x;
 
-		// Update content of VBO memory
-		glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+			// Update VBO for each character
+			GLfloat vertices[6][4] = {
+				{xpos, ypos + h, 0.0, 0.0f},//top left
+				{xpos, ypos, 0.0, 1.0f},//bottom left
+				{xpos + w, ypos, 1.0, 1.0f},//bottom right
 
-		// Render quad
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+				{xpos, ypos + h, 0.0, 0.0f},//top left
+				{xpos + w, ypos, 1.0, 1.0f},//bottom right
+				{xpos + w, ypos + h, 1.0, 0.0f} //top right
+			};
 
-		// Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-		x += ((ch.advance >> 6) * getScale().x); // Bitshift by 6 to get value in pixels (2^6 = 64)
+			// Render glyph texture over quad
+			glBindTexture(GL_TEXTURE_2D, ch.textureID);
+
+			// Update content of VBO memory
+			glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+			// Render quad
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+
+			// Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+			x += ((ch.advance >> 6) * getScale().x); // Bitshift by 6 to get value in pixels (2^6 = 64)
+			//equivalent to [= ch.advance * 2 * 2 * 2 * 2 * 2 * 2 * getScale().x]
+		}
+
+		//change character position
+		{
+			x = 0;
+			y = ((ch.size.y + ch.bearing.y) * getScale().x * ++count);
+
+		}
 	}
+
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -227,7 +248,7 @@ void Text::toTexture(uint width)
 	h *= getScale().x;
 
 	static Camera cam;
-	OrthoPeramiters perams{0.f,(float)x,0.f,(float)(h - ypos),0.f,1.f};
+	OrthoPeramiters perams{0.f, (float)x, 0.f, (float)(h - ypos), 0.f, 1.f};
 	cam.setType(Camera::ORTHOGRAPHIC, &perams);
 
 	m_texture->clear();
@@ -261,24 +282,46 @@ void Text::testSize()
 {
 	float
 		ypos = 0,
-		h = 0,
-		x = 0;
+		xMax = 0,
+		x = 0,
+		y = 0;
 
-	Character ch;
-	for(auto& c : m_text)
+	static Character ch;
+
+	int count = 0;
+
+	std::string tmpStr = m_text;
+	auto help = util::splitString(tmpStr, "\n");
+
+	for(auto a = help.rbegin(); a != help.rend(); a++)
 	{
-		ch = ResourceManager::getCharacter(c, m_font);
+		// Iterate through all characters
+		for(auto& c : *a)
+		{
 
-		ypos = fmin(-float(ch.size.y - ch.bearing.y), ypos);
+			ch = ResourceManager::getCharacter(c, m_font);
 
-		h = fmax((float)ch.size.y, h);
+			if(c == '\n')break;
 
 
-		// Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-		x += (ch.advance >> 6) * getScale().x; // Bitshift by 6 to get value in pixels (2^6 = 64)
+			ypos = y - (float(ch.size.y - ch.bearing.y) * getScale().x);
+
+			// Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+			x += ((ch.advance >> 6) * getScale().x); // Bitshift by 6 to get value in pixels (2^6 = 64)
+			//equivalent to [= ch.advance * 2 * 2 * 2 * 2 * 2 * 2 * getScale().x]
+		}
+
+		//change character position
+		ch = ResourceManager::getCharacter('\n', m_font);
+		{
+			xMax = std::max(x, xMax);
+			x = 0;
+			y = ((ch.size.y + ch.bearing.y) * getScale().x * ++count);
+
+		}
 	}
 
-	m_size = {(x), ((h - ypos) * getScale().x)};
+	m_size = {(xMax), (y * getScale().x)};
 }
 
 

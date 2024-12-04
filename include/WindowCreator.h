@@ -39,6 +39,8 @@ public:
 
 	static void setFullScreen(bool);
 
+	static void setTitle(std::string);
+
 	GLFWwindow* getWindow();
 
 	std::string& getTitle();

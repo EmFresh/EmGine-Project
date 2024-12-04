@@ -4,7 +4,7 @@
 //namespace fs = std::filesystem;
 
 using namespace util;
-Mesh::Mesh(): Component(MESH)
+Mesh::Mesh() : Component(MESH)
 {
 
 }
@@ -17,7 +17,7 @@ Mesh::Mesh(Mesh& mesh) : Component(MESH)
 Mesh::~Mesh()
 {
 #if _DEBUG
-		printf("Deleted Mesh\n");
+	printf("Deleted Mesh\n");
 #endif // _DEBUG
 
 	if(!ani)
@@ -33,7 +33,7 @@ bool Mesh::loadPrimitive(PrimitiveMesh* mesh)
 	mesh->createMesh();
 	m_unpackedData = (mesh->getData());
 	m_indicieData = (mesh->getIndices());
-	m_textures = {Texture2D(),Texture2D()};
+	m_textures = {Texture2D(), Texture2D()};
 	m_replaceTex = m_textures;
 
 	m_textures[0].type = TEXTURE_TYPE2D::DIFFUSE;
@@ -54,7 +54,7 @@ bool Mesh::loadPrimitive(PrimitiveMesh* mesh)
 
 void Mesh::render(Shader& shader, bool enableTex)
 {
-	if (!m_indicieData.size())return;
+	if(!m_indicieData.size())return;
 
 	shader.enable();
 
@@ -106,7 +106,7 @@ void Mesh::render(Shader& shader, bool enableTex)
 void Mesh::init()
 {
 	m_vaoID = 0;
-	m_vboID = {0,0};
+	m_vboID = {0, 0};
 
 	glGenVertexArrays(1, &m_vaoID);
 	glGenBuffers(2, &m_vboID.first);
@@ -142,11 +142,12 @@ void Mesh::init()
 	//create indicies
 	m_elemID = 0;
 	glGenBuffers(1, &m_elemID);
+	//if(m_elemID == 753 || m_elemID == 1171)
+	//	printf("Were fucked");
 
 	//indicies 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_elemID);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indicieData.size() * sizeof(unsigned), m_indicieData.data(), GL_STATIC_DRAW);
-
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -207,7 +208,7 @@ void Mesh::unload()
 	}
 
 	m_vaoID = 0;
-	m_vboID = {0,0};
+	m_vboID = {0, 0};
 	m_elemID = 0;
 
 	m_indicieData.clear();

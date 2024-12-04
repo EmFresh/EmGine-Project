@@ -21,17 +21,17 @@ enum PRIMITIVE_TYPE
 	SPHERE
 };
 
-struct PrimitiveMesh:public Transformer
+struct PrimitiveMesh :public Transformer
 {
-	PrimitiveMesh():Transformer(PRIMITIVE_MESH) {}
-	PrimitiveMesh(util::Vec3 dim, util::Vec3 offset = {}, util::Vec3 rot = {}):Transformer(PRIMITIVE_MESH),
+	PrimitiveMesh() :Transformer(PRIMITIVE_MESH) {}
+	PrimitiveMesh(util::Vec3 dim, util::Vec3 offset = {}, util::Vec3 rot = {}) :Transformer(PRIMITIVE_MESH),
 		m_dim(dim)
 	{
 		translate(offset);
 		rotate(rot);
 	}
-	PrimitiveMesh(float width, float height, float depth, util::Vec3 offset = {}, util::Vec3 rot = {}):Transformer(PRIMITIVE_MESH),
-		m_dim({width,height,depth})
+	PrimitiveMesh(float width, float height, float depth, util::Vec3 offset = {}, util::Vec3 rot = {}) :Transformer(PRIMITIVE_MESH),
+		m_dim({width, height, depth})
 	{
 		translate(offset);
 		rotate(rot);
@@ -47,7 +47,7 @@ struct PrimitiveMesh:public Transformer
 	}
 	virtual void setDimentions(float w, float h, float d = 0, util::Vec3 offset = {}, util::Vec3 rot = {})
 	{
-		setDimentions({w,h,d}, offset, rot);
+		setDimentions({w, h, d}, offset, rot);
 	}
 	virtual void createMesh() = 0;
 
@@ -126,11 +126,11 @@ protected:
 	}
 };
 
-struct PrimitivePlane:public PrimitiveMesh
+struct PrimitivePlane :public PrimitiveMesh
 {
-	PrimitivePlane():PrimitiveMesh() { type = PLANE; }
+	PrimitivePlane() :PrimitiveMesh() { type = PLANE; }
 
-	PrimitivePlane(util::Vec3 dim, util::Vec3 offset = {}, util::Vec3 rot = {}):PrimitiveMesh(dim, offset, rot) { type = PLANE; createMesh(); }
+	PrimitivePlane(util::Vec3 dim, util::Vec3 offset = {}, util::Vec3 rot = {}) :PrimitiveMesh(dim, offset, rot) { type = PLANE; createMesh(); }
 
 	PrimitivePlane(float w, float h, float d = 0, util::Vec3 offset = {}, util::Vec3 rot = {})
 		:PrimitiveMesh(w, h, d, offset, rot)
@@ -151,26 +151,26 @@ struct PrimitivePlane:public PrimitiveMesh
 		std::vector<util::Vertex3D> tmp;
 		glm::vec4 holder{};
 		//bottom left tri
-		tmp.push_back({getLocalPosition() + reclass(util::Vec3,holder = getLocalRotationMatrix() *
-			glm::vec4((util::Vec3{-halfW,-halfH, halfD}).tovec3(), 1)
-			)});//bottom left
-		tmp.push_back({getLocalPosition() + reclass(util::Vec3,holder = getLocalRotationMatrix() *
-			glm::vec4((util::Vec3{ halfW,-halfH,-halfD}).tovec3(), 1)
-			)});//bottom right*
-		tmp.push_back({getLocalPosition() + reclass(util::Vec3,holder = getLocalRotationMatrix() *
-			glm::vec4((util::Vec3{-halfW, halfH,-halfD}).tovec3(), 1)
-			)});//top left*
+		tmp.push_back({getLocalPosition() + reclass(util::Vec3, holder = getLocalRotationMatrix() *
+			glm::vec4((util::Vec3{-halfW, -halfH, halfD}).tovec3(), 1)
+		)});//bottom left
+		tmp.push_back({getLocalPosition() + reclass(util::Vec3, holder = getLocalRotationMatrix() *
+			glm::vec4((util::Vec3{halfW, -halfH, -halfD}).tovec3(), 1)
+		)});//bottom right*
+		tmp.push_back({getLocalPosition() + reclass(util::Vec3, holder = getLocalRotationMatrix() *
+			glm::vec4((util::Vec3{-halfW, halfH, -halfD}).tovec3(), 1)
+		)});//top left*
 
-		  //top right tri
-		tmp.push_back({getLocalPosition() + reclass(util::Vec3,holder = getLocalRotationMatrix() *
-			glm::vec4((util::Vec3{ halfW, halfH,-halfD}).tovec3(), 1)
-			)});//top right
-		tmp.push_back({getLocalPosition() + reclass(util::Vec3,holder = getLocalRotationMatrix() *
+		//top right tri
+		tmp.push_back({getLocalPosition() + reclass(util::Vec3, holder = getLocalRotationMatrix() *
+			glm::vec4((util::Vec3{halfW, halfH, -halfD}).tovec3(), 1)
+		)});//top right
+		tmp.push_back({getLocalPosition() + reclass(util::Vec3, holder = getLocalRotationMatrix() *
 			glm::vec4((util::Vec3{-halfW, halfH, halfD}).tovec3(), 1)
-			)});//top left*
-		tmp.push_back({getLocalPosition() + reclass(util::Vec3,holder = getLocalRotationMatrix() *
-			glm::vec4((util::Vec3{ halfW,-halfH, halfD}).tovec3(), 1)
-			)});//bottom right*
+		)});//top left*
+		tmp.push_back({getLocalPosition() + reclass(util::Vec3, holder = getLocalRotationMatrix() *
+			glm::vec4((util::Vec3{halfW, -halfH, halfD}).tovec3(), 1)
+		)});//bottom right*
 
 
 		m_top = m_bottom = m_left = m_right = m_front = m_back = tmp[0].coord;
@@ -200,36 +200,36 @@ struct PrimitivePlane:public PrimitiveMesh
 		util::Vec3 x, y;
 		if(abs(norm) == util::Vec3{0, 0, 1})
 		{
-			x = {1,0,0};
-			y = {0,1,0};
+			x = {1, 0, 0};
+			y = {0, 1, 0};
 		}
 		else if(abs(norm) == util::Vec3{0, 1, 0})
 		{
-			x = {1,0,0};
-			y = {0,0,1};
+			x = {1, 0, 0};
+			y = {0, 0, 1};
 		}
 		else if(abs(norm) == util::Vec3{1, 0, 0})
 		{
-			x = {0,0,1};
-			y = {0,1,0};
+			x = {0, 0, 1};
+			y = {0, 1, 0};
 		}
 
 		//uv
 		util::Vec3 val;
 
 		val = ((tmp[0].coord - getLocalPosition()) + util::Vec3{halfW, halfH, halfD});
-		tmp[0].uv = {float((val * x).length() > 0),float((val * y).length() > 0)};//bottom left 
+		tmp[0].uv = {float((val * x).length() > 0), float((val * y).length() > 0)};//bottom left 
 		val = ((tmp[1].coord - getLocalPosition()) + util::Vec3{halfW, halfH, halfD});
-		tmp[1].uv = {float((val * x).length() > 0),float((val * y).length() > 0)};//bottom right*
+		tmp[1].uv = {float((val * x).length() > 0), float((val * y).length() > 0)};//bottom right*
 		val = ((tmp[2].coord - getLocalPosition()) + util::Vec3{halfW, halfH, halfD});
-		tmp[2].uv = {float((val * x).length() > 0),float((val * y).length() > 0)};//top left*
+		tmp[2].uv = {float((val * x).length() > 0), float((val * y).length() > 0)};//top left*
 
 		val = ((tmp[3].coord - getLocalPosition()) + util::Vec3{halfW, halfH, halfD});
-		tmp[3].uv = {float((val * x).length() > 0),float((val * y).length() > 0)};//top right
+		tmp[3].uv = {float((val * x).length() > 0), float((val * y).length() > 0)};//top right
 		val = ((tmp[4].coord - getLocalPosition()) + util::Vec3{halfW, halfH, halfD});
-		tmp[4].uv = {float((val * x).length() > 0),float((val * y).length() > 0)};//top left*
+		tmp[4].uv = {float((val * x).length() > 0), float((val * y).length() > 0)};//top left*
 		val = ((tmp[5].coord - getLocalPosition()) + util::Vec3{halfW, halfH, halfD});
-		tmp[5].uv = {float((val * x).length() > 0),float((val * y).length() > 0)};//bottom right*
+		tmp[5].uv = {float((val * x).length() > 0), float((val * y).length() > 0)};//bottom right*
 
 
 		indiceCreator(tmp);
@@ -238,12 +238,12 @@ struct PrimitivePlane:public PrimitiveMesh
 	}
 };
 
-struct PrimitiveCube: public PrimitiveMesh
+struct PrimitiveCube : public PrimitiveMesh
 {
 public:
-	PrimitiveCube():PrimitiveMesh() { type = CUBE; }
+	PrimitiveCube() :PrimitiveMesh() { type = CUBE; }
 
-	PrimitiveCube(util::Vec3 dim, bool invert = false, util::Vec3 offset = {}, util::Vec3 rot = {}):PrimitiveMesh(dim, offset, rot)
+	PrimitiveCube(util::Vec3 dim, bool invert = false, util::Vec3 offset = {}, util::Vec3 rot = {}) :PrimitiveMesh(dim, offset, rot)
 	{
 		type = CUBE; m_invert = invert; createMesh();
 	}
@@ -262,7 +262,7 @@ public:
 
 	void setDimentions(float x, float y, float z, bool invert = false, util::Vec3 offset = {}, util::Vec3 rot = {})
 	{
-		setDimentions({x,y,z}, invert, offset, rot);
+		setDimentions({x, y, z}, invert, offset, rot);
 	}
 
 	~PrimitiveCube() {}
@@ -320,12 +320,12 @@ private:
 	bool m_invert;
 };
 
-struct PrimitiveSphere:public PrimitiveMesh
+struct PrimitiveSphere :public PrimitiveMesh
 {
 public:
-	PrimitiveSphere():PrimitiveMesh() { type = SPHERE; }
+	PrimitiveSphere() :PrimitiveMesh() { type = SPHERE; }
 
-	PrimitiveSphere(util::Vec2 dim, int segments, int divisions, util::Vec3 offset = {}, util::Vec3 rot = {}, bool invert = false):
+	PrimitiveSphere(util::Vec2 dim, int segments, int divisions, util::Vec3 offset = {}, util::Vec3 rot = {}, bool invert = false) :
 		PrimitiveMesh(dim, offset, rot),
 		m_segments(segments),
 		m_divisions(divisions),
@@ -334,7 +334,7 @@ public:
 		type = SPHERE; createMesh();
 	}
 
-	PrimitiveSphere(float w, float h, int segments, int divisions, util::Vec3 offset = {}, util::Vec3 rot = {}, bool invert = false):
+	PrimitiveSphere(float w, float h, int segments, int divisions, util::Vec3 offset = {}, util::Vec3 rot = {}, bool invert = false) :
 		PrimitiveMesh(w, h, w, offset, rot),
 		m_segments(segments),
 		m_divisions(divisions),
@@ -360,13 +360,13 @@ public:
 				if(b == 0)
 				{
 					//bottom Coord
-					tmp.push_back({{0,-m_dim.h * .5f * cos(0.f),0}});
-					tmp.back().uv = {.5f,0};
+					tmp.push_back({{0, -m_dim.h * .5f * cos(0.f), 0}});
+					tmp.back().uv = {.5f, 0};
 
-					tmp.push_back({Quat(util::Vec3 {0, -(m_dim.h * .5f) * (sin(1.f)), (m_dim.w * .5f) * (cos(1.f))}).rotation(360.f / m_segments * (a + 1),0,1,0).getCoord()});
-					tmp.back().uv = {float(a + 1) / m_segments,sin(1.f)};
-					tmp.push_back({Quat(util::Vec3 {0, -(m_dim.h * .5f) * (sin(1.f)), (m_dim.w * .5f) * (cos(1.f))}).rotation(360.f / m_segments * a,0,1,0).getCoord()});
-					tmp.back().uv = {float(a) / m_segments,sin(1.f)};
+					tmp.push_back({Quat(util::Vec3{0, -(m_dim.h * .5f) * (sin(1.f)), (m_dim.w * .5f) * (cos(1.f))}).rotation(360.f / m_segments * (a + 1), 0, 1, 0).getCoord()});
+					tmp.back().uv = {float(a + 1) / m_segments, sin(1.f)};
+					tmp.push_back({Quat(util::Vec3{0, -(m_dim.h * .5f) * (sin(1.f)), (m_dim.w * .5f) * (cos(1.f))}).rotation(360.f / m_segments * a, 0, 1, 0).getCoord()});
+					tmp.back().uv = {float(a) / m_segments, sin(1.f)};
 
 
 					norm = util::Vec3::crossProduct(tmp[tmp.size() - 1].coord - tmp[tmp.size() - 3].coord, tmp[tmp.size() - 1].coord - tmp[tmp.size() - 2].coord).normal();
@@ -380,16 +380,16 @@ public:
 				else
 				{
 					//bottom left
-					tmp.push_back({reclass(util::Vec3,tmp2 = Quat(util::Vec3 {0, -(m_dim.h * .5f) * (sin((b - 1) / (float)m_divisions)),(m_dim.w * .5f) * (cos((b - 1) / (float)m_divisions))}).rotation(360.f / m_segments * a,0,1,0))});
-					tmp.back().uv = {a / (float)m_segments,(b - 1) / (float)m_divisions};
+					tmp.push_back({reclass(util::Vec3, tmp2 = Quat(util::Vec3{0, -(m_dim.h * .5f) * (sin((b - 1) / (float)m_divisions)), (m_dim.w * .5f) * (cos((b - 1) / (float)m_divisions))}).rotation(360.f / m_segments * a, 0, 1, 0))});
+					tmp.back().uv = {a / (float)m_segments, (b - 1) / (float)m_divisions};
 
 					//top left
-					tmp.push_back({reclass(util::Vec3,tmp2 = Quat(util::Vec3 {0, -(m_dim.h * .5f) * (sin(b / (float)m_divisions)), (m_dim.w * .5f) * (cos(b / (float)m_divisions))}).rotation(360.f / m_segments * a,0,1,0))});
-					tmp.back().uv = {a / (float)m_segments,b / (float)m_divisions};
+					tmp.push_back({reclass(util::Vec3, tmp2 = Quat(util::Vec3{0, -(m_dim.h * .5f) * (sin(b / (float)m_divisions)), (m_dim.w * .5f) * (cos(b / (float)m_divisions))}).rotation(360.f / m_segments * a, 0, 1, 0))});
+					tmp.back().uv = {a / (float)m_segments, b / (float)m_divisions};
 
 					//top right
-					tmp.push_back({reclass(util::Vec3,tmp2 = Quat(util::Vec3 {0, -(m_dim.h * .5f) * (sin(b / (float)m_divisions)), (m_dim.w * .5f) * (cos(b / (float)m_divisions))}).rotation(360.f / m_segments * (a + 1),0,1,0))});
-					tmp.back().uv = {(a + 1) / (float)m_segments,b / (float)m_divisions};
+					tmp.push_back({reclass(util::Vec3, tmp2 = Quat(util::Vec3{0, -(m_dim.h * .5f) * (sin(b / (float)m_divisions)), (m_dim.w * .5f) * (cos(b / (float)m_divisions))}).rotation(360.f / m_segments * (a + 1), 0, 1, 0))});
+					tmp.back().uv = {(a + 1) / (float)m_segments, b / (float)m_divisions};
 
 					norm = util::Vec3::crossProduct(tmp[tmp.size() - 2].coord - tmp[tmp.size() - 1].coord, tmp[tmp.size() - 2].coord - tmp[tmp.size() - 3].coord).normal();
 					tmp[tmp.size() - 1].norm =
@@ -398,14 +398,14 @@ public:
 
 
 					//bottom left
-					tmp.push_back({reclass(util::Vec3,tmp2 = Quat(util::Vec3 {0,-(m_dim.h * .5f) * (sin((b - 1) / (float)m_divisions)), (m_dim.w * .5f) * (cos((b - 1) / (float)m_divisions))}).rotation(360.f / m_segments * a,0,1,0))});
-					tmp.back().uv = {a / (float)m_segments,(b - 1) / (float)m_divisions};
+					tmp.push_back({reclass(util::Vec3, tmp2 = Quat(util::Vec3{0, -(m_dim.h * .5f) * (sin((b - 1) / (float)m_divisions)), (m_dim.w * .5f) * (cos((b - 1) / (float)m_divisions))}).rotation(360.f / m_segments * a, 0, 1, 0))});
+					tmp.back().uv = {a / (float)m_segments, (b - 1) / (float)m_divisions};
 					//top right
-					tmp.push_back({reclass(util::Vec3,tmp2 = Quat(util::Vec3 {0,-(m_dim.h * .5f) * (sin(b / (float)m_divisions)),(m_dim.w * .5f) * (cos(b / (float)m_divisions))}).rotation(360.f / m_segments * (a + 1),0,1,0))});
-					tmp.back().uv = {(a + 1) / (float)m_segments,b / (float)m_divisions};
+					tmp.push_back({reclass(util::Vec3, tmp2 = Quat(util::Vec3{0, -(m_dim.h * .5f) * (sin(b / (float)m_divisions)), (m_dim.w * .5f) * (cos(b / (float)m_divisions))}).rotation(360.f / m_segments * (a + 1), 0, 1, 0))});
+					tmp.back().uv = {(a + 1) / (float)m_segments, b / (float)m_divisions};
 					//bottom right
-					tmp.push_back({reclass(util::Vec3,tmp2 = Quat(util::Vec3 {0,-(m_dim.h * .5f) * (sin((b - 1) / (float)m_divisions)), (m_dim.w * .5f) * (cos((b - 1) / (float)m_divisions))}).rotation(360.f / m_segments * (a + 1),0,1,0))});
-					tmp.back().uv = {(a + 1) / (float)m_segments,(b - 1) / (float)m_divisions};
+					tmp.push_back({reclass(util::Vec3, tmp2 = Quat(util::Vec3{0, -(m_dim.h * .5f) * (sin((b - 1) / (float)m_divisions)), (m_dim.w * .5f) * (cos((b - 1) / (float)m_divisions))}).rotation(360.f / m_segments * (a + 1), 0, 1, 0))});
+					tmp.back().uv = {(a + 1) / (float)m_segments, (b - 1) / (float)m_divisions};
 
 					norm = util::Vec3::crossProduct(tmp[tmp.size() - 1].coord - tmp[tmp.size() - 3].coord, tmp[tmp.size() - 1].coord - tmp[tmp.size() - 2].coord).normal();
 					tmp[tmp.size() - 1].norm =
@@ -438,7 +438,7 @@ private:
 	bool m_invert;
 };
 
-class Mesh:public Component //(keep this here just in case)
+class Mesh :public Component //(keep this here just in case)
 {
 public:
 	Mesh();
@@ -469,17 +469,17 @@ public:
 private:
 
 
-	std::vector<Texture2D> m_replaceTex;
 
 	bool ani = false;
 
 	GLuint m_vaoID = 0;
-	std::pair<GLuint, GLuint> m_vboID = {0,0};
+	std::pair<GLuint, GLuint> m_vboID = {0, 0};
 	GLuint m_elemID = 0;
 
 	std::vector<util::Vertex3D> m_unpackedData;
 	std::vector<uint> m_indicieData;
-	std::vector<Texture2D>m_textures;
+	std::vector<Texture2D> m_textures;
+	std::vector<Texture2D> m_replaceTex;
 
 
 };

@@ -1,14 +1,16 @@
+#include <memory>
 #include "fileIO.h"
-
 			  
 int  fileIO::readFileToBuffer(cstring path, unsigned char * buffer)
 {
-	FILE* file;
-	if(fopen_s(&file, path, "rb") == 0)
+	auto file_s = std::unique_ptr<FILE>();
+	auto file = file_s.get();
+	if(fopen_s((&file), path, "rb") == 0)
 	{
 		fseek(file, 0, SEEK_END);
 		int size = ftell(file);
 		fseek(file, 0, SEEK_SET);
+		file_s ? "not null" : "null";
 
 		buffer = new unsigned char[size];
 	

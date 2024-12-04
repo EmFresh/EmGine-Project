@@ -288,7 +288,7 @@ bool validityTest(Model* mod)
 #include <algorithm>
 void Camera::render(Shader* shader, const std::unordered_map<void*, Model*>& models, bool trans, bool shadow)
 {
-	int amount = models.size();//for testing
+	int amount = (int)models.size();//for testing
 	amount;
 	std::vector<std::pair<void*, Model*>> models2(models.begin(), models.end());
 	Camera* tmpCam = this;

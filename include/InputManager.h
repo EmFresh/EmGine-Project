@@ -125,8 +125,8 @@ public:
 
 private:
 
-	static void keyUpdate(GLFWwindow*, int key, int scancode, int action, int mods);
-	static void mouseButtonUpdate(GLFWwindow*, int button, int action, int mods);
+	static void keyUpdate(GLFWwindow*, wchar_t key, int scancode, KeyState action, wchar_t mods);
+	static void mouseButtonUpdate(GLFWwindow*, MouseButton button, MouseState action, MouseButton mods);
 	static void mousePositionUpdate(GLFWwindow*, double x, double y);
 
 	//static void xinputConnectionUpdate(int controller, int connected);

@@ -157,7 +157,7 @@ bool SceneManager::sendMesh(ofstream& out, Mesh* obj)
 	}
 
 	//Amount of Textures
-	dataSize = obj->getTextures().size();
+	dataSize = (uint)obj->getTextures().size();
 	out.write((char*)&dataSize, sizeof(unsigned));
 
 	//Texture Info (may add replace textures later)
@@ -231,7 +231,6 @@ bool SceneManager::recvMesh(std::ifstream& in, Mesh* obj)
 	return true;
 }
 
-
 bool SceneManager::sendModel(ofstream& out, Model* obj)
 {
 	if(!obj)return false;
@@ -242,12 +241,12 @@ bool SceneManager::sendModel(ofstream& out, Model* obj)
 	unsigned  objSize = 0;
 
 	//model tag (size of name length + 1 then string)
-	objSize = strlen(obj->getTag()) + 1;
+	objSize = (uint)strlen(obj->getTag()) + 1;
 	out.write((char*)&objSize, sizeof(objSize));
 	out.write(obj->getTag(), objSize);
 
 	//model path (size of name length + 1 then string)
-	objSize = strlen(obj->getPath()) + 1;
+	objSize = (uint)strlen(obj->getPath()) + 1;
 	out.write((char*)&objSize, sizeof(objSize));
 	out.write(obj->getPath(), objSize);
 

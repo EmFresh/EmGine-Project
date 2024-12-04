@@ -8,6 +8,7 @@
 #include <thread>
 #include <functional>
 #include <utility>
+#include <cmath>
 #include "Scene.h"
 #include "Shader.h"
 #include "WindowCreator.h"

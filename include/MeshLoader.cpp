@@ -8,11 +8,11 @@ using namespace util;
 namespace fs = std::filesystem;
 using std::string;
 using std::vector;
+using std::swap;
 
 std::vector<std::shared_ptr<Mesh>> MeshLoader::m_meshes;
 std::vector<std::pair<string, std::vector<Texture2D>>> MeshLoader::m_textures;
 cstring modelDir = "";
-
 
 /// <summary>
 /// Find a string and return a string from where the string was found. 
@@ -34,7 +34,7 @@ string substr(cstring str, cstring find)
 	return string(tmp.get());
 }
 
-std::vector<std::shared_ptr<Mesh>> MeshLoader::loadMesh(string path)
+std::vector<std::shared_ptr<Mesh>> MeshLoader::loadMesh(string path, bool createBinFiles = true)
 {
 	string tmp(modelDir + string("BIN/")), tmp2 = tmp;
 	if(!fs::exists(tmp))
@@ -44,11 +44,10 @@ std::vector<std::shared_ptr<Mesh>> MeshLoader::loadMesh(string path)
 	}
 
 	cleanup();
-	if(!load(modelDir + path, tmp2))return std::vector<std::shared_ptr<Mesh>>();
+	if(!load(modelDir + path, tmp2, createBinFiles))return std::vector<std::shared_ptr<Mesh>>();
 
 	for(auto& a : m_meshes)
 		a->init();
-
 
 	//for(auto& a : m_indicieData)
 	//	a.second.clear();
@@ -62,9 +61,8 @@ void MeshLoader::setDirectory(cstring dir)
 	modelDir = dir;
 }
 
-#include <chrono>
-#include <iomanip>
-bool MeshLoader::load(string path, string binPath)
+
+bool MeshLoader::load(string path, string binPath, bool createBinFiles)
 {
 
 	if(!strstr(path.c_str(), ".obj"))return false;
@@ -78,11 +76,11 @@ bool MeshLoader::load(string path, string binPath)
 	//path.insert(path.begin(), '\"');
 	//path.insert(path.end(), '\"');
 
-	std::vector<Vec3>verts;
 	std::vector<UV>uvs;
+	std::vector<Vec3>verts;
 	std::vector<Vec3>norms;
-
 	std::map<Indicie, GLuint> indicieMap;
+
 	unsigned indicieCount = 0;
 
 	bool initFace = true;
@@ -92,6 +90,8 @@ bool MeshLoader::load(string path, string binPath)
 	binPath = binPath + path.substr(strlen(modelDir), path.find_first_of('.') - strlen(modelDir) + 1) + "bin";
 	auto lasttime = fs::exists(binPath) ? fs::last_write_time(binPath) : fs::file_time_type();
 	auto lasttime2 = fs::last_write_time(path);
+
+	//if binary file exists or 
 	if(!fs::exists(binPath) || (lasttime < lasttime2))
 	{
 		//	puts("Load from File\n");
@@ -132,11 +132,8 @@ bool MeshLoader::load(string path, string binPath)
 					if(strcmp(str, a.first.c_str()) == 0)
 					{
 						auto& tmp = a.second;//refernce original
-
-						for(auto& b : tmp)
-							((vector<Texture2D>)m_meshes.back()->getTextures()).push_back(b);
-						//((vector<Texture2D>)m_meshes.back()->getTextures()).insert(m_meshes.back()->getTextures().end(), tmp.begin(), tmp.end());
-						((vector<Texture2D>)m_meshes.back()->getReplaceTextures()).resize(m_meshes.back()->getTextures().size());
+						m_meshes.back()->getTextures().insert(m_meshes.back()->getTextures().end(), tmp.begin(), tmp.end());
+						m_meshes.back()->getReplaceTextures().resize(m_meshes.back()->getTextures().size());
 					}
 
 				//	indicieMap.clear();
@@ -168,6 +165,8 @@ bool MeshLoader::load(string path, string binPath)
 
 				//object
 				m_meshes.push_back(std::shared_ptr<Mesh>(new Mesh));
+
+
 				m_meshes.back()->meshName = str;
 				initFace = true;
 				indicieMap.clear();
@@ -189,20 +188,22 @@ bool MeshLoader::load(string path, string binPath)
 
 				count = unsigned((float)count * .5f);
 				string	faceTmp[2][2]
-				{{ " %d/%d/%d"," %*d/%*d/%*d" },
-					{ " %d//%d"," %*d//%*d" }};
+				{{" %d/%d/%d", " %*d/%*d/%*d"},
+					{" %d//%d", " %*d//%*d"}};
 
 				std::vector<string > format = std::vector<string>(count);
 				string formatStr;
-				std::function<void(int)> reformat = [&](int type)
-				{
-					for(unsigned a = 0; a < count; a++)
-						if(a < 3)//read 3 indicies
-							format[a] = faceTmp[type][0];
-						else
-							format[a] = faceTmp[type][1];
-				};
-				short type = 0;
+				std::function<void(int)> reformat =
+					[&](int type)
+					{
+						for(unsigned a = 0; a < count; a++)
+							if(a < 3)//read 3 indicies
+								format[a] = faceTmp[type][0];
+							else
+								format[a] = faceTmp[type][1];
+					};
+
+				uchar type = 0;
 				reformat(type);
 				formatStr = "f";
 
@@ -211,12 +212,11 @@ bool MeshLoader::load(string path, string binPath)
 
 
 				memset(tmp, 0, sizeof(tmp));
-
 				if(9 != sscanf_s(inputBuff.c_str(), formatStr.c_str(),
-				   //Coord         UV        Normal
-				   &tmp[0][0], &tmp[0][1], &tmp[0][2],
-				   &tmp[1][0], &tmp[1][1], &tmp[1][2],
-				   &tmp[2][0], &tmp[2][1], &tmp[2][2]))
+					//Coord         UV        Normal
+					&tmp[0][0], &tmp[0][1], &tmp[0][2],
+					&tmp[1][0], &tmp[1][1], &tmp[1][2],
+					&tmp[2][0], &tmp[2][1], &tmp[2][2]))
 				{
 					reformat(++type);
 					formatStr = "f";
@@ -224,82 +224,88 @@ bool MeshLoader::load(string path, string binPath)
 						formatStr += format[a];
 
 					sscanf_s(inputBuff.c_str(), formatStr.c_str(),
-							 //Coord        Normal
-							 &tmp[0][0], &tmp[0][2],
-							 &tmp[1][0], &tmp[1][2],
-							 &tmp[2][0], &tmp[2][2]);
+						//Coord        Normal
+						&tmp[0][0], &tmp[0][2],
+						&tmp[1][0], &tmp[1][2],
+						&tmp[2][0], &tmp[2][2]);
 				}
+
 
 				for(unsigned b = 0; b < 3; ++b)
 				{
-					bool inuv = (bool)tmp[b].uv;
-					tmp[b].correct();
-					auto thing = indicieMap.find(tmp[b]);
+					if(type == 1)//make sure the UV index is zero (may randomly become a value for no reason)
+						tmp[b].uv = 0;
 
+					bool inuv = (bool)tmp[b].uv.index;
+
+					tmp[b].correct();
+
+					auto thing = indicieMap.find(tmp[b]);
 					if(thing == indicieMap.end())//new indicie
 					{
 						indicieMap[tmp[b]] = indicieCount;
 						Vertex3D tmp2;
-						tmp2.coord = verts[tmp[b].coord];
-						tmp2.norm = norms[tmp[b].norm];
+						tmp2.coord = verts[tmp[b].coord.index];
+						tmp2.norm = norms[tmp[b].norm.index];
+						tmp2.uv = UV();
 						if(inuv)
-							tmp2.uv = uvs[tmp[b].uv];
+							tmp2.uv = uvs[tmp[b].uv.index];
 
-						((vector<Vertex3D>)m_meshes.back()->getUnpackedData()).push_back(tmp2);
-						((vector<uint>)m_meshes.back()->getIndicieData()).push_back(indicieCount++);
+						m_meshes.back()->getUnpackedData().push_back(tmp2);
+						m_meshes.back()->getIndicieData().push_back(indicieCount++);
 					}
-					else//reacouring indicie
-						((vector<uint>)m_meshes.back()->getIndicieData()).push_back(indicieMap[tmp[b]]);
+					else//reoccurring indicie
+						m_meshes.back()->getIndicieData().push_back(thing->second);
 				}
 
-				//tmp.correct();
-				//m_unpackedData.push_back(Vertex3D());
-				//m_unpackedData.back().coord = verts[tmp[0][0]];
-				//m_indicieData.back().second.push_back(tmp);
-
-				for(unsigned a = 1; a < count - 2; a++)
+				for(unsigned a = 3; a < count; ++a)
 				{
 					formatStr = "f";
-					swap(format[a], format[(a + 2)]);
+					swap(format[a], format[(a - 2)]);
+
 					for(unsigned i = 0; i < count; i++)
 						formatStr += format[i];
+
+					memset(tmp, 0, sizeof(tmp));
 					if(type == 0)
 						sscanf_s(inputBuff.c_str(), formatStr.c_str(),
-								 //Coord         UV        Normal
-								 &tmp[0][0], &tmp[0][1], &tmp[0][2],
-								 &tmp[1][0], &tmp[1][1], &tmp[1][2],
-								 &tmp[2][0], &tmp[2][1], &tmp[2][2]);
+							//Coord         UV        Normal
+							&tmp[0][0], &tmp[0][1], &tmp[0][2],
+							&tmp[1][0], &tmp[1][1], &tmp[1][2],
+							&tmp[2][0], &tmp[2][1], &tmp[2][2]);
 					else
 						sscanf_s(inputBuff.c_str(), formatStr.c_str(),
-								 //Coord       Normal
-								 &tmp[0][0], &tmp[0][2],
-								 &tmp[1][0], &tmp[1][2],
-								 &tmp[2][0], &tmp[2][2]);
+							//Coord       Normal
+							&tmp[0][0], &tmp[0][2],
+							&tmp[1][0], &tmp[1][2],
+							&tmp[2][0], &tmp[2][2]);
 
+					swap(format[a], format[(a - 2)]);
 					for(unsigned b = 0; b < 3; ++b)
 					{
 						if(type == 1)//make sure the UV index is zero (may randomly become a value for no reason)
-							tmp[b][1] = 0;
+							tmp[b].uv = 0;
 
-						bool inuv = (bool)tmp[b].uv;
+						bool inuv = (bool)tmp[b].uv.index;
 
 						tmp[b].correct();
-						auto thing = indicieMap.find(tmp[b]);
 
+						auto thing = indicieMap.find(tmp[b]);
 						if(thing == indicieMap.end())//new indicie
 						{
 							indicieMap[tmp[b]] = indicieCount;
 							Vertex3D tmp2;
-							tmp2.coord = verts[tmp[b].coord];
-							tmp2.norm = norms[tmp[b].norm];
+							tmp2.coord = verts[tmp[b].coord.index];
+							tmp2.norm = norms[tmp[b].norm.index];
+							tmp2.uv = UV();
 							if(inuv)
-								tmp2.uv = uvs[tmp[b].uv];
+								tmp2.uv = uvs[tmp[b].uv.index];
 
-							((vector<Vertex3D>)m_meshes.back()->getUnpackedData()).push_back(tmp2);
-							((vector<uint>)m_meshes.back()->getIndicieData()).push_back(indicieCount++);
+							m_meshes.back()->getUnpackedData().push_back(tmp2);
+							m_meshes.back()->getIndicieData().push_back(indicieCount++);
 						}
-						else//reacouring indicie
-							((vector<uint>)	m_meshes.back()->getIndicieData()).push_back(indicieMap[tmp[b]]);
+						else//reoccurring indicie
+							m_meshes.back()->getIndicieData().push_back(thing->second);
 					}
 
 
@@ -337,66 +343,69 @@ bool MeshLoader::load(string path, string binPath)
 		f.close();
 	#pragma endregion
 
-	#pragma region PACK DATA
-
-		string binFile = binPath;
-		//open bin file
-		//fopen_s(&bin, (binFile).c_str(), "wb");
-
-		//create Directory (you need to create the directory before making a file)
+		if(createBinFiles)
 		{
-			string tmp = ("mkdir \"" + binFile.substr(0, binFile.find_last_of('/')) + "\"").c_str();
-			if(!fs::exists(tmp))
-				system(tmp.c_str());
-		}
+		#pragma region PACK DATA
 
-		bin.open(binFile, std::ios::out | std::ios::binary);//deletes file contents before writing (I think... in the end it doesn't mater)
+			string binFile = binPath;
+			//open bin file
+			//fopen_s(&bin, (binFile).c_str(), "wb");
 
-
-		unsigned meshSize = (uint)m_meshes.size(), dataSize = 0;
-
-		//Ammount of Meshes (size of int)
-		bin.write((char*)&meshSize, sizeof(meshSize));
-
-		for(unsigned int a = 0; a < meshSize; a++)
-		{
-			//Mesh Name (size of name length + 1 then string)
-			dataSize = (uint)m_meshes[a]->meshName.length() + 1;
-			bin.write((char*)&dataSize, sizeof(unsigned));
-			bin.write((char*)m_meshes[a]->meshName.data(), dataSize);
-
-			//Amount of Vertecies (size of unsigned)
-			dataSize = (uint)m_meshes[a]->getUnpackedData().size();
-			bin.write((char*)&dataSize, sizeof(unsigned));
-
-			//Store Vertex Data (size of vertex3D * vertex amount)
-			bin.write((char*)m_meshes[a]->getUnpackedData().data(), sizeof(Vertex3D) * dataSize);
-
-			//Amount of Indicies (size of unsigned)
-			dataSize = (uint)m_meshes[a]->getIndicieData().size();
-			bin.write((char*)&dataSize, sizeof(unsigned));
-
-			//Indicie Data (size of unsigned * indice amount)
-			bin.write((char*)m_meshes[a]->getIndicieData().data(), sizeof(unsigned) * dataSize);
-
-			//Amount of Materials (size of unsigned)
-			dataSize = (uint)m_meshes[a]->matNames.size();
-			bin.write((char*)&dataSize, sizeof(unsigned));
-
-			//Material Names
-			for(auto& b : m_meshes[a]->matNames)
+			//create Directory (you need to create the directory before making a file)
 			{
-				dataSize = (uint)b.length() + 1;
-				bin.write((char*)&dataSize, sizeof(uint));
-				bin.write((char*)b.data(), dataSize);
+				string tmp = ("mkdir \"" + binFile.substr(0, binFile.find_last_of('/')) + "\"").c_str();
+				if(!fs::exists(tmp))
+					system(tmp.c_str());
 			}
-			//m_meshes[a]->matNames.clear();
 
-			//Bounds Data 
-			bin.write((char*)&m_meshes[a]->top/*first bound*/, sizeof(Vec3) * 6);
+			bin.open(binFile, std::ios::out | std::ios::binary);//deletes file contents before writing (I think... in the end it doesn't mater)
+
+
+			unsigned meshSize = (uint)m_meshes.size(), dataSize = 0;
+
+			//Ammount of Meshes (size of int)
+			bin.write((char*)&meshSize, sizeof(meshSize));
+
+			for(unsigned int a = 0; a < meshSize; a++)
+			{
+				//Mesh Name (size of name length + 1 then string)
+				dataSize = (uint)m_meshes[a]->meshName.length() + 1;
+				bin.write((char*)&dataSize, sizeof(unsigned));
+				bin.write((char*)m_meshes[a]->meshName.data(), dataSize);
+
+				//Amount of Vertecies (size of unsigned)
+				dataSize = (uint)m_meshes[a]->getUnpackedData().size();
+				bin.write((char*)&dataSize, sizeof(unsigned));
+
+				//Store Vertex Data (size of vertex3D * vertex amount)
+				bin.write((char*)m_meshes[a]->getUnpackedData().data(), sizeof(Vertex3D) * dataSize);
+
+				//Amount of Indicies (size of unsigned)
+				dataSize = (uint)m_meshes[a]->getIndicieData().size();
+				bin.write((char*)&dataSize, sizeof(unsigned));
+
+				//Indicie Data (size of unsigned * indice amount)
+				bin.write((char*)m_meshes[a]->getIndicieData().data(), sizeof(unsigned) * dataSize);
+
+				//Amount of Materials (size of unsigned)
+				dataSize = (uint)m_meshes[a]->matNames.size();
+				bin.write((char*)&dataSize, sizeof(unsigned));
+
+				//Material Names
+				for(auto& b : m_meshes[a]->matNames)
+				{
+					dataSize = (uint)b.length() + 1;
+					bin.write((char*)&dataSize, sizeof(uint));
+					bin.write((char*)b.data(), dataSize);
+				}
+				//m_meshes[a]->matNames.clear();
+
+				//Bounds Data 
+				bin.write((char*)&m_meshes[a]->top/*first bound*/, sizeof(Vec3) * 6);
+			}
+			bin.close();
+		#pragma endregion
 		}
-		bin.close();
-	#pragma endregion
 
 	}
 	else
@@ -504,13 +513,13 @@ void MeshLoader::loadMaterials(cstring path)
 		return;
 	}
 
-	char str[CHAR_BUFF_SIZE];
+	char str[CHAR_BUFF_SIZE + 1];
 	char* MeshCheck;
 	string tmpDir;
 	while(MeshCheck = fgets(str, CHAR_BUFF_SIZE, f),
-		  //this part takes out the '\n' from the string
-		  (str == nullptr ? "" : (str[strlen(str) - 1] = (str[strlen(str) - 1] == '\n' ? '\0' : str[strlen(str) - 1]), str)),
-		  MeshCheck)
+		//this part takes out the '\n' from the string
+		(str == nullptr ? "" : (str[strlen(str) - 1] = (str[strlen(str) - 1] == '\n' ? '\0' : str[strlen(str) - 1]), str)),
+		MeshCheck)
 		if(strstr(str, "mtllib"))
 		{
 			//find material
@@ -536,9 +545,9 @@ void MeshLoader::loadMaterials(cstring path)
 
 	if(f)
 		while(MeshCheck = fgets(str, CHAR_BUFF_SIZE, f),
-			  //this part takes out the '\n' from the string
-			  (str == nullptr ? "" : (str[strlen(str) - 1] = (str[strlen(str) - 1] == '\n' ? '\0' : str[strlen(str) - 1]), str)),
-			  MeshCheck)
+			//this part takes out the '\n' from the string
+			(str == nullptr ? "" : (str[strlen(str) - 1] = (str[strlen(str) - 1] == '\n' ? '\0' : str[strlen(str) - 1]), str)),
+			MeshCheck)
 		{
 
 			if(strchr(str, '#'))
@@ -547,17 +556,19 @@ void MeshLoader::loadMaterials(cstring path)
 			if(strstr(str, "newmtl "))
 			{
 				char str2[CHAR_BUFF_SIZE];
+
 				sscanf_s(str, "newmtl %s", str2, CHAR_BUFF_SIZE);
+				str[CHAR_BUFF_SIZE - 1] = '\0';
 				m_textures.push_back({string(str2), std::vector<Texture2D>()});
 				//m_replaceTex.push_back(std::vector<GLuint>());
-				if(strstr(str, "None"))
+				if(strstr(tolower(str2).c_str(), "none"))
 					return;
 			}
 
 			else if(strstr(str, "illum "))
-			{
+
 				continue;
-			}
+
 
 			else if(strstr(str, "map_Kd "))
 			{
@@ -627,9 +638,8 @@ void MeshLoader::loadMaterials(cstring path)
 				continue;
 
 			else if(strstr(str, "d "))
-			{
 				continue;
-			}
+
 		}
 
 	if(f)

@@ -45,8 +45,8 @@ Texture2D ImageLoader::loadImage2D(cstring path)
 #include <fstream>
 Texture3D ImageLoader::loadImage3D(cstring LUTfile)
 {
-	Texture3D texture = Texture3D();
-	texture.type = TEXTURE_TYPE3D::LUT;
+	Texture3D texture = Texture3D(TEXTURE_TYPE3D::LUT);
+
 	std::vector<Vec3> LUT{};
 
 	//LUTfile = "Texture/CUSTOM.cube";
@@ -58,10 +58,10 @@ Texture3D ImageLoader::loadImage3D(cstring LUTfile)
 		return texture;
 	}
 
-	while(!LUTfile2.eof())
+
+	std::string LUTline;
+	while((getline(LUTfile2, LUTline), !LUTfile2.eof()))
 	{
-		std::string LUTline;
-		getline(LUTfile2, LUTline);
 
 		if(LUTline.empty()) continue;
 		if(LUTline[0] == ('#'))continue;
@@ -71,7 +71,7 @@ Texture3D ImageLoader::loadImage3D(cstring LUTfile)
 
 
 		float r, g, b;
-		if(sscanf_s(LUTline.c_str(), "%f %f %f", &r, &g, &b) == 3) LUT.push_back({r,g,b});
+		if(sscanf_s(LUTline.c_str(), "%f %f %f", &r, &g, &b) == 3) LUT.push_back({r, g, b});
 	}
 	glEnable(GL_TEXTURE_3D);
 
@@ -101,42 +101,47 @@ Texture3D ImageLoader::loadImage3D(cstring LUTfile)
 /// <returns>A Texture3D with all the information. else a default Texture3D</returns>
 Texture3D ImageLoader::createCubeMap(cstring SBpath)
 {
-	Texture3D texture = Texture3D();
-	std::string pos[6]{"_right.","_left.","_top.","_bottom.","_front.","_back."};
+	Texture3D texture = Texture3D(TEXTURE_TYPE3D::CUBE);
+	std::string pos[6]{"_right.", "_left.", "_top.", "_bottom.", "_front.", "_back."};
 	unsigned char* data;
 
+	glEnable(GL_TEXTURE_CUBE_MAP);
 	glGenTextures(1, &texture.id);
 
-	glBindTexture(GL_TEXTURE_CUBE_MAP, texture.id);
+	texture.bindTexture();
 
 	for(unsigned a = 0; a < 6; ++a)
 		for(auto& b : fs::directory_iterator(SBpath))
 		{
-			std::wstring path = b.path();
+			std::string path = b.path().generic_string();
 			std::string tmp;
-			for(auto& c : path)
-				tmp += (char)tolower(c);
-			if(strstr(tmp.c_str(), pos[a].c_str()))
+
+
+			tmp = util::tolower(path);
+
+			if(tmp.find(pos[a]) != std::wstring::npos)
 			{
 
-				data = SOIL_load_image(tmp.c_str(), &texture.size.width, &texture.size.height, nullptr, SOIL_LOAD_RGBA);
-				glTexImage2D(
-					GL_TEXTURE_CUBE_MAP_POSITIVE_X + a,
-					0, GL_RGBA, texture.size.width, texture.size.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data
-				);
+				data = SOIL_load_image(tmp.c_str(), &texture.size.width, &texture.size.height, nullptr, SOIL_LOAD_RGB);
+				if(data)
+					glTexImage2D(
+						GL_TEXTURE_CUBE_MAP_POSITIVE_X + a,
+						0, GL_RGBA, texture.size.width, texture.size.height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
+					);
 				printf("%s\n\n", SOIL_last_result());
 				SOIL_free_image_data(data);
 				break;
 			}
 		}
-
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+	texture.unbindTexture();
+	glDisable(GL_TEXTURE_CUBE_MAP);
 
 
 	return texture;

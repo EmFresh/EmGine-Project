@@ -246,6 +246,7 @@ void FrameBuffer::clearSingleColour(ColourRGBA colour, int index)
 void FrameBuffer::clearBackBuffer(bool clearCol, bool clearDep)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
+
 	glClear((GL_COLOR_BUFFER_BIT * clearCol) | (GL_COLOR_BUFFER_BIT * clearDep));
 }
 

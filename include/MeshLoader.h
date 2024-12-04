@@ -1,10 +1,12 @@
 #pragma once
 #include "Mesh.h"
+#include <chrono>
+#include <iomanip>
 
 class MeshLoader
 {
 public:
-	static std::vector<std::shared_ptr<Mesh>> loadMesh(std::string path);
+	static std::vector<std::shared_ptr<Mesh>> loadMesh(std::string path,bool);
 	static void setDirectory(cstring dir);
 
 private:
@@ -27,7 +29,7 @@ private:
 
 	static void loadMaterials(cstring path);
 
-	static bool load(std::string path,std::string bin);
+	static bool load(std::string path,std::string bin,bool);
 
 	static void cleanup();
 

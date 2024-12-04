@@ -17,15 +17,17 @@
 class Camera;
 class Animation;
 
-class Model: public Transformer
+class Model : public Transformer
 {
 public:
-	Model():Transformer(MODEL) { m_ID = createID(); };
+	Model() :Transformer(MODEL) { m_ID = createID(); };
 	Model(Model& model, cstring tag = "");
 	Model(const Model& model, cstring tag = "");
 	Model(PrimitiveMesh* model, cstring tag = "");
 	Model(cstring path, cstring tag = "");
 	virtual ~Model();
+	//Model& operator=(Model& mod);
+	//Model& operator=(const Model& mod);
 
 
 	void create(const Model& model, cstring tag = "");
@@ -68,7 +70,7 @@ public:
 
 	void editVerts(Model* first, Model* second);
 
-	bool operator==(Model& mod)const
+	bool operator==(Model& mod)
 	{
 		if(!this || !&mod)return false;
 		return this->m_ID == mod.m_ID;
